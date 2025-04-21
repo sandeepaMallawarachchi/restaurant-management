@@ -11,6 +11,6 @@ public class CartItemCreateRequest {
     private Long productId;
     private String productName;
     private Double price;
-    private int quantity;
+//    private int quantity = 1;
     private Long restaurantId;
 }

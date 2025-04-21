@@ -12,5 +12,5 @@ import java.util.List;
 public class CartCreateRequest {
     private Long userId;
     private Long restaurantId;
-    private List<CartItemCreateRequest> cartItems;
+    private CartItemCreateRequest cartItem;
 }
