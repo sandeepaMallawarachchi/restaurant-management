@@ -1,4 +1,4 @@
-package com.yourcompany.yourapp.model;
+package com.restaurant.restaurant.models;
 
 public class Notification {
     private String title;
@@ -13,18 +13,24 @@ public class Notification {
         this.message = message;
         this.category = category;
     }
+    
+    // title
     public String getTitle() {
         return title;
     }
     public void setTitle(String title) {
         this.title = title;
     }
+    
+    // message
     public String getMessage() {
         return message;
     }
     public void setMessage(String message) {
         this.message = message;
     }
+    
+    // category
     public String getCategory() {
         return category;
     }
