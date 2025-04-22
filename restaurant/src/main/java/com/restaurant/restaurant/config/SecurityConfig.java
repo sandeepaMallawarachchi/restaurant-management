@@ -23,8 +23,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/restaurants/**").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/restaurants", "/restaurants/**").hasAuthority("ROLE_RESTAURANT_OWNER")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
