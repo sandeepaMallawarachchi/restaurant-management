@@ -4,6 +4,7 @@ import com.restaurant.restaurant.models.Restaurant;
 import com.restaurant.restaurant.services.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
+    @PreAuthorize("hasAuthority('ROLE_RESTAURANT_OWNER')")
     @PostMapping
     public ResponseEntity<Restaurant> addRestaurant(@RequestBody Restaurant restaurant) {
         return ResponseEntity.ok(restaurantService.addRestaurant(restaurant));
@@ -33,12 +35,14 @@ public class RestaurantController {
         return restaurant.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_RESTAURANT_OWNER')")
     @PatchMapping("/{id}")
     public ResponseEntity<Restaurant> patchRestaurant(@PathVariable String id, @RequestBody Map<String, Object> updates) {
         Restaurant updatedRestaurant = restaurantService.patchRestaurant(id, updates);
         return ResponseEntity.ok(updatedRestaurant);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_RESTAURANT_OWNER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteRestaurant(@PathVariable String id) {
         restaurantService.deleteRestaurant(id);
