@@ -3,6 +3,7 @@ package com.restaurant.restaurant.models;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "menu_items")
@@ -10,7 +11,11 @@ public class MenuItem {
     @Id
     private String id;
 
-    @NotBlank(message = "Name is required")
+    @NotNull(message = "UserId is required")
+    private Long userId;
+
+    @Indexed(unique = true)
+    @NotBlank(message = "Restaurant name is required")
     private String name;
 
     @NotNull(message = "Price is required")
@@ -22,6 +27,14 @@ public class MenuItem {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

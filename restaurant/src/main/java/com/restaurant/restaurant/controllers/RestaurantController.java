@@ -18,10 +18,15 @@ public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
-    @PreAuthorize("hasAuthority('ROLE_RESTAURANT_OWNER')")
+    @PreAuthorize("@restaurantSecurity.isOwnerOrAdmin(authentication, #id)")
     @PostMapping
-    public ResponseEntity<Restaurant> addRestaurant(@RequestBody Restaurant restaurant) {
-        return ResponseEntity.ok(restaurantService.addRestaurant(restaurant));
+    public ResponseEntity<?> addRestaurant(@RequestBody Restaurant restaurant) {
+        try {
+            Restaurant saved = restaurantService.addRestaurant(restaurant);
+            return ResponseEntity.ok(saved);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        }
     }
 
     @GetMapping

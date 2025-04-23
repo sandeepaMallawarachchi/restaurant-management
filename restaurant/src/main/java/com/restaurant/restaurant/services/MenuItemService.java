@@ -1,8 +1,10 @@
 package com.restaurant.restaurant.services;
 
 import com.restaurant.restaurant.models.MenuItem;
+import com.restaurant.restaurant.models.Restaurant;
 import com.restaurant.restaurant.repository.MenuItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +16,11 @@ public class MenuItemService {
     private MenuItemRepository menuItemRepository;
 
     public MenuItem addMenuItem(MenuItem item) {
-        return menuItemRepository.save(item);
+        try {
+            return menuItemRepository.save(item);
+        } catch (DuplicateKeyException e) {
+            throw new RuntimeException("Menu name must be unique");
+        }
     }
 
     public List<MenuItem> getAllMenuItems() {

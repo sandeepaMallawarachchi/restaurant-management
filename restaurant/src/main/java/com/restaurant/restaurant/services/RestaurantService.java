@@ -4,6 +4,7 @@ import com.restaurant.restaurant.models.MenuItem;
 import com.restaurant.restaurant.models.Restaurant;
 import com.restaurant.restaurant.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,11 @@ public class RestaurantService {
     private RestaurantRepository restaurantRepository;
 
     public Restaurant addRestaurant(Restaurant restaurant) {
-        return restaurantRepository.save(restaurant);
+        try {
+            return restaurantRepository.save(restaurant);
+        } catch (DuplicateKeyException e) {
+            throw new RuntimeException("Restaurant name must be unique");
+        }
     }
 
     public List<Restaurant> getAllRestaurants() {

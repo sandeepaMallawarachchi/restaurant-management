@@ -1,8 +1,8 @@
 package com.restaurant.restaurant.models;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -12,6 +12,7 @@ public class Restaurant {
     @Id
     private String id;
 
+    @Indexed(unique = true)
     @NotBlank(message = "Restaurant name is required")
     private String name;
 
