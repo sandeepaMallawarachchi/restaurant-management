@@ -12,15 +12,11 @@ public class Restaurant {
     @Id
     private String id;
 
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "Restaurant name is required")
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    private String email;
-
-    @NotBlank(message = "Password is required")
-    private String password;
+    @NotBlank(message = "UserId is required")
+    private Long userId;
 
     @NotBlank(message = "Address is required")
     private String address;
@@ -35,35 +31,78 @@ public class Restaurant {
     private boolean verifiedByAdmin = false;
     private List<MenuItem> menu;
 
-    public Restaurant() {}
+    public Restaurant() {
+    }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getName() {
+        return name;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-    public String getPostal() { return postal; }
-    public void setPostal(String postal) { this.postal = postal; }
+    public String getAddress() {
+        return address;
+    }
 
-    public boolean isAvailable() { return isAvailable; }
-    public void setAvailable(boolean available) { isAvailable = available; }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-    public boolean isVerifiedByAdmin() { return verifiedByAdmin; }
-    public void setVerifiedByAdmin(boolean verifiedByAdmin) { this.verifiedByAdmin = verifiedByAdmin; }
+    public String getCity() {
+        return city;
+    }
 
-    public List<MenuItem> getMenu() { return menu; }
-    public void setMenu(List<MenuItem> menu) { this.menu = menu; }
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getPostal() {
+        return postal;
+    }
+
+    public void setPostal(String postal) {
+        this.postal = postal;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
+
+    public boolean isVerifiedByAdmin() {
+        return verifiedByAdmin;
+    }
+
+    public void setVerifiedByAdmin(boolean verifiedByAdmin) {
+        this.verifiedByAdmin = verifiedByAdmin;
+    }
+
+    public List<MenuItem> getMenu() {
+        return menu;
+    }
+
+    public void setMenu(List<MenuItem> menu) {
+        this.menu = menu;
+    }
 }

@@ -33,9 +33,7 @@ public class RestaurantService {
 
         updates.forEach((key, value) -> {
             switch (key) {
-                case "name" -> restaurant.setName((String) value);
-                case "email" -> restaurant.setEmail((String) value);
-                case "password" -> restaurant.setPassword((String) value);
+                case "userId" -> restaurant.setUserId((Long) value);
                 case "address" -> restaurant.setAddress((String) value);
                 case "city" -> restaurant.setCity((String) value);
                 case "postal" -> restaurant.setPostal((String) value);

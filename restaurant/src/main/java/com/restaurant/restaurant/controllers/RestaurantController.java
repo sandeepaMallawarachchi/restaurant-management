@@ -35,14 +35,14 @@ public class RestaurantController {
         return restaurant.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_RESTAURANT_OWNER')")
+    @PreAuthorize("@restaurantSecurity.isOwnerOrAdmin(authentication, #id)")
     @PatchMapping("/{id}")
     public ResponseEntity<Restaurant> patchRestaurant(@PathVariable String id, @RequestBody Map<String, Object> updates) {
         Restaurant updatedRestaurant = restaurantService.patchRestaurant(id, updates);
         return ResponseEntity.ok(updatedRestaurant);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_RESTAURANT_OWNER')")
+    @PreAuthorize("@restaurantSecurity.isOwnerOrAdmin(authentication, #id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteRestaurant(@PathVariable String id) {
         restaurantService.deleteRestaurant(id);

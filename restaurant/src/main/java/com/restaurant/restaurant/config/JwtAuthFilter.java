@@ -1,7 +1,6 @@
 package com.restaurant.restaurant.config;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.Key;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         Claims claims = jwtUtil.getAllClaims(token);
-        String username = claims.getSubject();
+        String userId = String.valueOf(claims.get("userId"));
         List<String> roles = claims.get("role", List.class);
 
         List<SimpleGrantedAuthority> authorities = roles.stream()
@@ -54,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(username, null, authorities);
+                new UsernamePasswordAuthenticationToken(userId, null, authorities);
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
