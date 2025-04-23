@@ -20,7 +20,7 @@ public class MenuItemController {
     @Autowired
     private MenuItemService menuItemService;
 
-    @PreAuthorize("@menuItemsSecurity.isOwnerOrAdmin(authentication, #item.userId)")
+    @PreAuthorize("hasRole('ADMIN') or #item.userId.toString() == authentication.name")
     @PostMapping
     public ResponseEntity<?> addMenuItem(@Valid @RequestBody MenuItem item) {
         try {
@@ -42,13 +42,20 @@ public class MenuItemController {
         return item.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("@menuItemsSecurity.isOwnerOrAdmin(authentication, #item.userId)")
-    @PatchMapping("/{id}")
-    public ResponseEntity<MenuItem> updateMenuItem(@PathVariable String id, @RequestBody MenuItem item) {
-        return ResponseEntity.ok(menuItemService.updateMenuItem(id, item));
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<MenuItem>> getMenuItemsByUserId(@PathVariable String userId) {
+        List<MenuItem> items = menuItemService.getMenuItemsByUserId(userId);
+        return ResponseEntity.ok(items);
     }
 
-    @PreAuthorize("@menuItemsSecurity.isOwnerOrAdmin(authentication, #item.userId)")
+    @PreAuthorize("@menuItemsSecurity.isOwnerOrAdminByMenuItemId(authentication, #id)")
+    @PatchMapping("/{id}")
+    public ResponseEntity<MenuItem> updateMenuItem(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+        MenuItem updatedMenu = menuItemService.updateMenuItem(id, updates);
+        return ResponseEntity.ok(updatedMenu);
+    }
+
+    @PreAuthorize("@menuItemsSecurity.isOwnerOrAdminByMenuItemId(authentication, #id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMenuItem(@PathVariable String id) {
         menuItemService.deleteMenuItem(id);

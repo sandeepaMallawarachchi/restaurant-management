@@ -8,6 +8,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,14 +32,25 @@ public class MenuItemService {
         return menuItemRepository.findById(id);
     }
 
-    public MenuItem updateMenuItem(String id, MenuItem item) {
-        MenuItem existing = menuItemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("MenuItem not found"));
-        if (item.getName() != null) existing.setName(item.getName());
-        if (item.getPrice() != null) existing.setPrice(item.getPrice());
-        if (item.getDescription() != null) existing.setDescription(item.getDescription());
-        existing.setAvailable(item.isAvailable());
-        return menuItemRepository.save(existing);
+    public List<MenuItem> getMenuItemsByUserId(String userId) {
+        return menuItemRepository.findByUserId(Long.parseLong(userId));
+    }
+
+    public MenuItem updateMenuItem(String id, Map<String, Object> updates) {
+        MenuItem menuItem = menuItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Menu item not found"));
+
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "userId" -> menuItem.setUserId((Long) value);
+                case "name" -> menuItem.setName((String) value);
+                case "price" -> menuItem.setPrice((Double) value);
+                case "description" -> menuItem.setDescription((String) value);
+                case "available" -> menuItem.setAvailable((Boolean) value);
+            }
+        });
+
+        return menuItemRepository.save(menuItem);
     }
 
     public void deleteMenuItem(String id) {
