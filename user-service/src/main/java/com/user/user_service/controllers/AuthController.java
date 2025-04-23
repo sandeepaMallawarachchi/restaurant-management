@@ -12,6 +12,8 @@ import com.user.user_service.services.CustomUserDetails;
 import com.user.user_service.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,25 +31,21 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-// Allow only frontend calls
 @CrossOrigin(origins = "*")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthenticationManager authenticationManager;
-
     private final UserRepository userRepository;
-
     private final RoleRepository roleRepository;
-
     private final PasswordEncoder encoder;
-
     private final JwtUtil jwtUtil;
 
-    // Endpoint for user login
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        System.out.println("Login attempt: " + loginRequest.getUsername());
+        logger.info("Login attempt for user: {}", loginRequest.getUsername());
 
-        // Authenticate the user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -55,24 +53,17 @@ public class AuthController {
                 )
         );
 
-        // Set the authentication in the security context
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Generate JWT token
         String jwt = jwtUtil.generateToken(loginRequest.getUsername());
-
-        // Get user details
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        System.out.println("User authenticated: " + userDetails.getUsername());
+        logger.info("User authenticated successfully: {}", userDetails.getUsername());
 
-        // Extract roles
-        List<String> roles = userDetails.getAuthorities()
-                .stream()
+        List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        // Return JWT response
         return ResponseEntity.ok(new JwtResponse(jwt,
                 "Bearer",
                 userDetails.getId(),
@@ -81,99 +72,100 @@ public class AuthController {
                 roles));
     }
 
-    // Endpoint for user registration
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        System.out.println(encoder.encode(signUpRequest.getUsername()));
-        // Check if username is already taken
+        logger.info("Signup request received for username: {}", signUpRequest.getUsername());
+
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Username is already taken!");
+            logger.warn("Username already taken: {}", signUpRequest.getUsername());
+            return ResponseEntity.badRequest().body("Username is already taken!");
         }
 
-        // Check if email is already in use
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Email is already in use!");
+            logger.warn("Email already in use: {}", signUpRequest.getEmail());
+            return ResponseEntity.badRequest().body("Email is already in use!");
         }
 
-        // Create new user account
         User user = new User();
         user.setUsername(signUpRequest.getUsername());
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
+        user.setAddress(signUpRequest.getAddress());
+        user.setPhoneNumber(signUpRequest.getPhone());
 
-
-        // Set roles
         Set<String> strRoles = signUpRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
+        logger.debug("Assigning roles: {}", strRoles);
+
         if (strRoles == null || strRoles.isEmpty()) {
-            // Assign default role if no roles are specified
             Role userRole = roleRepository.findByName("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException(" Role is not found."));
+                    .orElseThrow(() -> new RuntimeException("Role is not found."));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role.toLowerCase()) {
                     case "admin":
                         Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                                .orElseThrow(() -> new RuntimeException(" Role is not found."));
+                                .orElseThrow(() -> new RuntimeException("Role is not found."));
                         roles.add(adminRole);
                         break;
-                    case "mod":
-                        Role modRole = roleRepository.findByName("ROLE_MODERATOR")
+                    case "restaurantowner":
+                        Role ownerRole = roleRepository.findByName("ROLE_RESTAURANT_OWNER")
                                 .orElseThrow(() -> new RuntimeException("Role is not found."));
-                        roles.add(modRole);
+                        roles.add(ownerRole);
                         break;
                     default:
-                        Role userRole = roleRepository.findByName("ROLE_USER")
-                                .orElseThrow(() -> new RuntimeException(" Role is not found."));
-                        roles.add(userRole);
+                        Role defaultRole = roleRepository.findByName("ROLE_USER")
+                                .orElseThrow(() -> new RuntimeException("Role is not found."));
+                        roles.add(defaultRole);
                 }
             });
         }
 
         user.setRoles(roles);
         userRepository.save(user);
+
+        logger.info("User registered successfully: {}", user.getUsername());
         return ResponseEntity.ok("User registered successfully!");
     }
 
-
-
-
     @GetMapping("/validate-token")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        logger.info("Token validation request received");
+
         try {
-            // Extract token from the Authorization header
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                logger.warn("Missing or invalid Authorization header");
                 return ResponseEntity.status(401)
                         .body(new JwtResponse("Unauthorized", "Bearer", null, null, null, null));
             }
 
-            String token = authHeader.split(" ")[1];  // Get the token part
-            // Validate the token
+            String token = authHeader.split(" ")[1];
+            logger.debug("Extracted token: {}", token);
+
             String username = jwtUtil.extractUsername(token);
 
             if (username == null || !jwtUtil.validateToken(token)) {
+                logger.warn("Invalid token for user: {}", username);
                 return ResponseEntity.status(401)
                         .body(new JwtResponse("Invalid token", "Bearer", null, null, null, null));
             }
 
-            // Find the user from the database based on the username
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+            logger.info("Token is valid for user: {}", username);
 
-            // Return the user details along with the token validation status
             return ResponseEntity.ok(new JwtResponse("Token is valid", "Bearer", user.getId(),
                     user.getUsername(), user.getEmail(), user.getRoles().stream()
                     .map(Role::getName)
                     .collect(Collectors.toList())));
 
         } catch (Exception e) {
+            logger.error("Error while validating token", e);
             return ResponseEntity.status(500)
                     .body(new JwtResponse("Server error", "Bearer", null, null, null, null));
         }
