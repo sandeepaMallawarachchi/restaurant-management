@@ -45,6 +45,18 @@ public class MenuItemController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<MenuItem>> getMenuItemsByUserId(@PathVariable String userId) {
         List<MenuItem> items = menuItemService.getMenuItemsByUserId(userId);
+        if (items.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(items);
+    }
+
+    @GetMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<List<MenuItem>> getMenuItemsByRestaurantId(@PathVariable String restaurantId) {
+        List<MenuItem> items = menuItemService.getMenuItemsByRestaurantId(restaurantId);
+        if (items.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(items);
     }
 

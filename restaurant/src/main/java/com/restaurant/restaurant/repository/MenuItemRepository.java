@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface MenuItemRepository extends MongoRepository<MenuItem, String> {
     List<MenuItem> findByUserId(Long userId);
+
+    List<MenuItem> findByRestaurantId(String restaurantId);
 }

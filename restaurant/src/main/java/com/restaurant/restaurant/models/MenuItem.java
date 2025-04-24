@@ -14,6 +14,9 @@ public class MenuItem {
     @NotNull(message = "UserId is required")
     private Long userId;
 
+    @NotNull(message = "RestaurantId is required")
+    private String restaurantId;
+
     @Indexed(unique = true)
     @NotBlank(message = "Restaurant name is required")
     private String name;
@@ -47,4 +50,12 @@ public class MenuItem {
 
     public boolean isAvailable() { return available; }
     public void setAvailable(boolean available) { this.available = available; }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
+    }
+
+    public String getRestaurantId() {
+        return restaurantId;
+    }
 }

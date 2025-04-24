@@ -16,7 +16,17 @@ public class MenuItemService {
     @Autowired
     private MenuItemRepository menuItemRepository;
 
+    @Autowired
+    private RestaurantService restaurantService;
+
     public MenuItem addMenuItem(MenuItem item) {
+        Restaurant restaurant = restaurantService.findByUserId(item.getUserId())
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        if (!restaurant.isVerifiedByAdmin()) {
+            throw new RuntimeException("Restaurant is not verified by admin");
+        }
+
         try {
             return menuItemRepository.save(item);
         } catch (DuplicateKeyException e) {
@@ -25,20 +35,44 @@ public class MenuItemService {
     }
 
     public List<MenuItem> getAllMenuItems() {
-        return menuItemRepository.findAll();
+        List<MenuItem> allItems = menuItemRepository.findAll();
+        return allItems.stream()
+                .filter(item -> {
+                    Optional<Restaurant> rest = restaurantService.findByUserId(item.getUserId());
+                    return rest.isPresent() && rest.get().isVerifiedByAdmin();
+                })
+                .toList();
     }
 
     public Optional<MenuItem> getMenuItemById(String id) {
         return menuItemRepository.findById(id);
     }
 
+    public List<MenuItem> getMenuItemsByRestaurantId(String restaurantId) {
+        return menuItemRepository.findByRestaurantId(restaurantId);
+    }
+
     public List<MenuItem> getMenuItemsByUserId(String userId) {
+        Restaurant restaurant = restaurantService.findByUserId(Long.parseLong(userId))
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        if (!restaurant.isVerifiedByAdmin()) {
+            throw new RuntimeException("Restaurant is not verified by admin");
+        }
+
         return menuItemRepository.findByUserId(Long.parseLong(userId));
     }
 
     public MenuItem updateMenuItem(String id, Map<String, Object> updates) {
         MenuItem menuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Menu item not found"));
+
+        Restaurant restaurant = restaurantService.findByUserId(menuItem.getUserId())
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        if (!restaurant.isVerifiedByAdmin()) {
+            throw new RuntimeException("Restaurant is not verified by admin");
+        }
 
         updates.forEach((key, value) -> {
             switch (key) {

@@ -54,4 +54,8 @@ public class RestaurantService {
     public void deleteRestaurant(String id) {
         restaurantRepository.deleteById(id);
     }
+
+    public Optional<Restaurant> findByUserId(Long userId) {
+        return restaurantRepository.findByUserId(userId);
+    }
 }
