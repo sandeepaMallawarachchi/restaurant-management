@@ -75,6 +75,36 @@ public class User {
     @Column(name = "restaurant_id")
     private Set<Long> restaurantIds = new HashSet<>();
 
+
+    private String city;
+
+    private int postalCode;
+
+    private String profileImage;
+
+    private String nic;
+
+    private boolean availability;
+
+    private boolean verified;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "delivery_person_restaurants",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "delivery_person_r_id")
+    private Set<Long> registeredRestaurants = new HashSet<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
+    private DeliveryVehicle vehicle;
+
+
+    @OneToOne
+    @JoinColumn(name = "bank_detail_id", referencedColumnName = "id")
+    private BankDetail bankDetail;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
