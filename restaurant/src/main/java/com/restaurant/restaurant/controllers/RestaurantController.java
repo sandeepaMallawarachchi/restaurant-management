@@ -18,7 +18,6 @@ public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
-    @PreAuthorize("@restaurantSecurity.isOwnerOrAdmin(authentication, #id)")
     @PostMapping
     public ResponseEntity<?> addRestaurant(@RequestBody Restaurant restaurant) {
         try {

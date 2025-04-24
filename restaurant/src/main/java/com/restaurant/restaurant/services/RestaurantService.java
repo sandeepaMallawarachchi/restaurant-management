@@ -58,4 +58,8 @@ public class RestaurantService {
     public Optional<Restaurant> findByUserId(Long userId) {
         return restaurantRepository.findByUserId(userId);
     }
+
+    public void save(Restaurant restaurant) {
+        restaurantRepository.save(restaurant);
+    }
 }

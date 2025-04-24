@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,19 +20,30 @@ public class MenuItemService {
     @Autowired
     private RestaurantService restaurantService;
 
-    public MenuItem addMenuItem(MenuItem item) {
-        Restaurant restaurant = restaurantService.findByUserId(item.getUserId())
+    public void addMenuItem(List<MenuItem> items) {
+        if (items == null || items.isEmpty()) return;
+
+        Long userId = items.get(0).getUserId();
+
+        Restaurant restaurant = restaurantService.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Restaurant not found"));
 
         if (!restaurant.isVerifiedByAdmin()) {
-            throw new RuntimeException("Restaurant is not verified by admin");
+            throw new RuntimeException("Restaurant is not verified");
         }
 
-        try {
-            return menuItemRepository.save(item);
-        } catch (DuplicateKeyException e) {
-            throw new RuntimeException("Menu name must be unique");
+        List<MenuItem> savedItems = new ArrayList<>();
+        for (MenuItem item : items) {
+            MenuItem saved = menuItemRepository.save(item);
+            savedItems.add(saved);
         }
+
+        List<MenuItem> menu = restaurant.getMenu();
+        if (menu == null) menu = new ArrayList<>();
+        menu.addAll(savedItems);
+        restaurant.setMenu(menu);
+
+        restaurantService.save(restaurant);
     }
 
     public List<MenuItem> getAllMenuItems() {

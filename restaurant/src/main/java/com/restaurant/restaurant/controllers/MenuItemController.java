@@ -20,12 +20,12 @@ public class MenuItemController {
     @Autowired
     private MenuItemService menuItemService;
 
-    @PreAuthorize("hasRole('ADMIN') or #item.userId.toString() == authentication.name")
+    @PreAuthorize("hasRole('ADMIN') or #items[0].userId.toString() == authentication.name")
     @PostMapping
-    public ResponseEntity<?> addMenuItem(@Valid @RequestBody MenuItem item) {
+    public ResponseEntity<?> addMenuItems(@Valid @RequestBody List<MenuItem> items) {
         try {
-            MenuItem saved = menuItemService.addMenuItem(item);
-            return ResponseEntity.ok(saved);
+            menuItemService.addMenuItem(items);
+            return ResponseEntity.ok(Map.of("message", "Menu items added successfully"));
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
         }
