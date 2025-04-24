@@ -98,7 +98,7 @@ public class User {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
-    private DeliveryVehicle vehicle;
+    private DeliveryVehicle deliveryVehicle;
 
 
     @OneToOne
