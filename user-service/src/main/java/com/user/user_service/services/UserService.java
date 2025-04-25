@@ -37,6 +37,15 @@ public class UserService {
         return mapToRestaurantOwnerResponse(user);
     }
 
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+
+        userRepository.delete(user);
+    }
+
+
     private RestaurantOwnerResponse mapToRestaurantOwnerResponse(User user) {
         return RestaurantOwnerResponse.builder()
                 .id(user.getId())

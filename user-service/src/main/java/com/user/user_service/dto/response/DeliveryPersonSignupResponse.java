@@ -10,7 +10,6 @@ import java.util.Set;
 public class DeliveryPersonSignupResponse {
     private Long id;
     private String username;
-    private String password;
     private String email;
     private String firstName;
     private String lastName;
