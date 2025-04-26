@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface OrderRepository  extends JpaRepository<Order,Long> {
-    Page<Order> findAllByUserId(Long userId, Pageable pageable);
-
     @Query("SELECT o FROM Order o WHERE " +
             "(:userId IS NULL OR o.userId = :userId) AND " +
             "(:orderStatus IS NULL OR o.orderStatus = :orderStatus) AND " +
