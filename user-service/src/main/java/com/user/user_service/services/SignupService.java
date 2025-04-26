@@ -136,7 +136,7 @@ public class SignupService {
         DeliveryVehicle vehicle = new DeliveryVehicle();
         try {
             vehicle.setVehicleNumber(request.getVehicleNumber());
-            vehicle.setVehicleType(DeliveryVehicleType.valueOf(request.getVehicleType()));
+            vehicle.setVehicleType(DeliveryVehicleType.valueOf(request.getVehicleType().toUpperCase()));
             vehicle.setDrivingLicense(request.getLicenseNumber());
             vehicle.setVehicleImg(request.getVehicleImg());
             vehicle.setVehicleDocuments(request.getVehicleDocuments());
