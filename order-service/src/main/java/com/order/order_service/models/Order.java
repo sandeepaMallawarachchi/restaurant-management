@@ -32,6 +32,12 @@ public class Order {
     @NotNull(message = "User ID is required")
     private Long userId;
 
+    @NotBlank(message = "Delivery user name is required")
+    private String deliveryUserName;
+
+    @NotBlank(message = "Delivery user phone number is required")
+    private String deliveryUserPhoneNumber;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
@@ -66,16 +72,37 @@ public class Order {
     @Email(message = "Email format is invalid")
     private String email;
 
-    @NotBlank(message = "Delivery user name is required")
-    private String deliveryUserName;
-
     private LocalDateTime estimatedDeliveryTime;
 
     private String specialNote;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    private OrderLocation location;
 
     @CreatedDate
     private LocalDateTime createdDate;
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastModifiedDate = LocalDateTime.now();
+    }
+
+    public void setOrderTotal(){
+        double total = 0;
+        for (OrderItem item : items) {
+            total += item.getTotalPrice();
+        }
+        this.orderTotal = total;
+    }
+    public void setFinalPrice() {
+        this.finalPrice = this.orderTotal - this.discount + this.deliveryFee;
+    }
 }

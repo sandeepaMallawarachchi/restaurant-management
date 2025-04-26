@@ -56,4 +56,18 @@ public class OrderItem {
 
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
+
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastModifiedDate = LocalDateTime.now();
+    }
+
+    public void setTotalPrice() {
+        this.totalPrice = (this.productPrice - this.discount) * this.quantity;
+    }
 }

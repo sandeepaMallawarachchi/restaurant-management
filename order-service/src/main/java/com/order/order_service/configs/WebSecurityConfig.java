@@ -28,8 +28,8 @@ public class WebSecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/cart/**").permitAll()
-                                .requestMatchers("/order/**").permitAll()
+                        auth.requestMatchers("/api/cart/**").permitAll()
+                                .requestMatchers("/api/order/**").permitAll()
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

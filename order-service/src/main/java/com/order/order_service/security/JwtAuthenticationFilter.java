@@ -40,11 +40,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .parseClaimsJws(jwt)
                         .getBody();
 
-                String userId = claims.getSubject();
-                List<String> roles = claims.get("roles", List.class);
+                String username = claims.getSubject();
+                // Extract userId from the dedicated claim
+                Long userId = claims.get("userId", Long.class);
+                // Extract roles from the claim (named "role" in your user service)
+                List<String> roles = claims.get("role", List.class);
 
-                // Set as a request attribute
-                request.setAttribute("userId", Long.parseLong(userId));
+                // Set userId as request attribute
+                request.setAttribute("userId", userId);
 
                 Collection<GrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)

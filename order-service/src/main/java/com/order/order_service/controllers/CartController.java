@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
 
@@ -30,7 +30,7 @@ public class CartController {
         return ResponseEntity.ok(cartService.removeCartItem(request, userId));
     }
 
-    @PutMapping("decrease-item-quantity")
+    @PutMapping("/decrease-item-quantity")
     public ResponseEntity<CartResponse> decreaseItemQuantity(
             @RequestAttribute("userId") Long userId,
             @RequestBody CartItemCreateRequest request

@@ -42,4 +42,23 @@ public class Cart {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastModifiedDate = LocalDateTime.now();
+    }
+
+    public void addCartItem(CartItem item) {
+        cartItems.add(item);
+        item.setCart(this);
+    }
+
+    public void removeCartItem(CartItem item) {
+        item.setCart(null);
+        cartItems.remove(item);
+    }
 }

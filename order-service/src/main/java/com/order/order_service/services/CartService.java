@@ -63,11 +63,24 @@ public class CartService {
 
     private CartResponse updateCart(CartItemCreateRequest item, Cart cart, Long userId) {
         if (!Objects.equals(cart.getRestaurantId(), item.getRestaurantId())) {
-            emptyCart(cart.getId(), userId);
+            // Create a new list to avoid ConcurrentModificationException
+            List<CartItem> itemsToRemove = new ArrayList<>(cart.getCartItems());
+
+            // Properly remove each item using the helper method
+            for (CartItem cartItem : itemsToRemove) {
+                cart.removeCartItem(cartItem);
+            }
+
+            // Update cart with new restaurant info
             cart.setRestaurantId(item.getRestaurantId());
             cart.setTotal(item.getPrice());
-            cart.setCartItems(List.of(toCartItem(item, cart)));
+
+            // Add the new item
+            CartItem newItem = toCartItem(item, cart);
+            cart.addCartItem(newItem);
+
             cartRepository.save(cart);
+            return mapToCartResponse(cart);
         }
 
         boolean itemExists = cart.getCartItems().stream()
@@ -87,7 +100,7 @@ public class CartService {
             cartRepository.save(cart);
         } else {
             CartItem cartItem = toCartItem(item, cart);
-            cart.getCartItems().add(cartItem);
+            cart.addCartItem(cartItem);
             cart.setTotal(cart.getTotal() + item.getPrice());
             cartRepository.save(cart);
         }
@@ -118,7 +131,7 @@ public class CartService {
                         () -> new ResourceNotFoundException("Cart item not found")
                 );
 
-        cart.getCartItems().remove(item);
+        cart.removeCartItem(item);
         cart.setTotal(cart.getTotal() - item.getSubtotal());
         cartItemRepository.delete(item);
         cartRepository.save(cart);
@@ -149,7 +162,7 @@ public class CartService {
                         () -> new ResourceNotFoundException("Cart item not found")
                 );
         if (item.getQuantity() == 1) {
-            cart.getCartItems().remove(item);
+            cart.removeCartItem(item);
             cart.setTotal(cart.getTotal() - item.getSubtotal());
             cartRepository.save(cart);
         } else {
@@ -168,7 +181,15 @@ public class CartService {
         if (!Objects.equals(cart.getUserId(), userId)) {
             throw new InvalidInputException("User ID does not match with the cart's user ID");
         }
-        cart.getCartItems().clear();
+
+        // Create a new list to avoid ConcurrentModificationException
+        List<CartItem> itemsToRemove = new ArrayList<>(cart.getCartItems());
+
+        // Properly remove each item using the helper method to maintain relationships
+        for (CartItem item : itemsToRemove) {
+            cart.removeCartItem(item);
+        }
+
         cartRepository.save(cart);
     }
 
