@@ -16,6 +16,7 @@ import com.user.user_service.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,8 @@ public class SignupService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder encoder;
+
 
     public AdminSignupResponse signupAdmin(AdminSignupRequest adminSignupRequest) {
         logger.info("Processing admin signup request for username: {}", adminSignupRequest.getUsername());
@@ -44,7 +47,7 @@ public class SignupService {
 
         User user = new User();
         user.setUsername(adminSignupRequest.getUsername());
-        user.setPassword(adminSignupRequest.getPassword());
+        user.setPassword(encoder.encode(adminSignupRequest.getPassword()));
         user.setEmail(adminSignupRequest.getEmail());
         user.setFirstName(adminSignupRequest.getFirstName());
         user.setLastName(adminSignupRequest.getLastName());
@@ -67,7 +70,7 @@ public class SignupService {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setPassword(encoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -94,7 +97,7 @@ public class SignupService {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setPassword(encoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -118,7 +121,7 @@ public class SignupService {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setPassword(encoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());

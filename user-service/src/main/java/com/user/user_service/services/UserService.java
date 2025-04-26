@@ -6,8 +6,10 @@ import com.user.user_service.models.User;
 import com.user.user_service.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -15,12 +17,18 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
 
-    @Cacheable(value = "userCache", key = "#id")
+
+//    @Cacheable(value = "userCache", key = "#id")
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with id: " + id)
         );
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public RestaurantOwnerResponse setRestaurantId(Long restaurantId, Long userId) {
@@ -45,6 +53,15 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public void changePassword(Long userId, String password) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+
+        user.setPassword(encoder.encode(password));
+        userRepository.save(user);
+    }
+
 
     private RestaurantOwnerResponse mapToRestaurantOwnerResponse(User user) {
         return RestaurantOwnerResponse.builder()
@@ -57,4 +74,6 @@ public class UserService {
                 .addresses(user.getAddress())
                 .build();
     }
+
+
 }
