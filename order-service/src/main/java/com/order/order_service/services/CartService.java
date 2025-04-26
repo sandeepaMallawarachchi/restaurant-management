@@ -36,7 +36,7 @@ public class CartService {
         CartResponse response;
         if (cartRepository.existsByUserId(userId)) {
             Cart cart = cartRepository.getByUserId(userId);
-            response = updateCart(item, cart);
+            response = updateCart(item, cart, userId);
         } else {
             CartCreateRequest cartCreateRequest = new CartCreateRequest();
             cartCreateRequest.setUserId(userId);
@@ -61,9 +61,9 @@ public class CartService {
         return mapToCartResponse(cart);
     }
 
-    private CartResponse updateCart(CartItemCreateRequest item, Cart cart) {
+    private CartResponse updateCart(CartItemCreateRequest item, Cart cart, Long userId) {
         if (!Objects.equals(cart.getRestaurantId(), item.getRestaurantId())) {
-            emptyCart(cart);
+            emptyCart(cart.getId(), userId);
             cart.setRestaurantId(item.getRestaurantId());
             cart.setTotal(item.getPrice());
             cart.setCartItems(List.of(toCartItem(item, cart)));
@@ -161,7 +161,13 @@ public class CartService {
         return mapToCartResponse(cart);
     }
 
-    public void emptyCart(Cart cart) {
+    public void emptyCart(Long cartId, Long userId) {
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
+                () -> new ResourceNotFoundException("Cart not found")
+        );
+        if (!Objects.equals(cart.getUserId(), userId)) {
+            throw new InvalidInputException("User ID does not match with the cart's user ID");
+        }
         cart.getCartItems().clear();
         cartRepository.save(cart);
     }
