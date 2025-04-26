@@ -1,6 +1,7 @@
 package com.order.order_service.services;
 
 import com.order.order_service.dto.requests.OrderCreateRequest;
+import com.order.order_service.dto.requests.OrderFilterRequest;
 import com.order.order_service.dto.requests.OrderItemCreateRequest;
 import com.order.order_service.dto.responses.OrderCreateResponse;
 import com.order.order_service.dto.responses.OrderItemCreateResponse;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Controller
 @Transactional
@@ -108,9 +108,18 @@ public class OrderService {
         return mapToOrderCreateResponse(order);
     }
 
-    public Page<OrderCreateResponse> getAllOrderOfUser(Long userId, int page, int size){
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
-        Page<Order> orders = orderRepository.findAllByUserId(userId, pageable);
+    public Page<OrderCreateResponse> getAllOrder(OrderFilterRequest request){
+        Pageable pageable = Pageable.ofSize(request.getSize()).withPage(request.getPage());
+        Page<Order> orders = orderRepository.filterAll(
+                request.getUserId(),
+                request.getOrderStatus(),
+                request.getRestaurantId(),
+                request.getOrderDateStart(),
+                request.getOrderDateEnd(),
+                request.getPaymentMethod(),
+                request.getPaymentStatus(),
+                pageable
+        );
         return orders.map(this::mapToOrderCreateResponse);
     }
 
@@ -204,9 +213,4 @@ public class OrderService {
                 .build();
     }
 
-    public Page<OrderCreateResponse> getAll(Integer page, Integer size) {
-        Pageable pageable = Pageable.ofSize(size).withPage(page);
-        Page<Order> orders = orderRepository.findAll(pageable);
-        return orders.map(this::mapToOrderCreateResponse);
-    }
 }
