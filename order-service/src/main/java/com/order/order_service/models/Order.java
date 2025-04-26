@@ -42,6 +42,7 @@ public class Order {
     private List<OrderItem> items = new ArrayList<>();
 
     @NotNull(message = "Payment method is required")
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
     @NotNull(message = "Order total is required")
@@ -58,8 +59,10 @@ public class Order {
     @DecimalMin(value = "0.0", inclusive = true, message = "Final price must be at least 0")
     private Double finalPrice;
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus =  OrderStatus.PENDING;
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @NotBlank(message = "Delivery address is required")
@@ -101,6 +104,7 @@ public class Order {
             total += item.getTotalPrice();
         }
         this.orderTotal = total;
+        System.out.println("Order total: " + this.orderTotal);
     }
     public void setFinalPrice() {
         this.finalPrice = this.orderTotal - this.discount + this.deliveryFee;

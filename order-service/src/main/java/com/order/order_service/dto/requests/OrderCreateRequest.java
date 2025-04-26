@@ -18,8 +18,6 @@ public class OrderCreateRequest {
     private String paymentMethod;
     private Double discount;
     private Double deliveryFee;
-    private String orderStatus;
-    private String paymentStatus;
     private String deliveryAddress;
     private String phoneNumber;
     private String email;
