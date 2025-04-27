@@ -23,7 +23,8 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
             "(:orderDateStart IS NULL OR o.createdDate >= :orderDateStart) AND " +
             "(:orderDateEnd IS NULL OR o.createdDate <= :orderDateEnd) AND " +
             "(:paymentMethod IS NULL OR o.paymentMethod = :paymentMethod) AND " +
-            "(:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus)")
+            "(:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) AND " +
+            "(:deliverBy IS NULL OR o.deliverBy = :deliverBy)")
     Page<Order> filterAll(
             @Param("userId") Long userId,
             @Param("orderStatus") OrderStatus orderStatus,
@@ -32,6 +33,7 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
             @Param("orderDateEnd") LocalDateTime orderDateEnd,
             @Param("paymentMethod") PaymentMethod paymentMethod,
             @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("deliverBy") Long deliverBy,
             Pageable pageable
     );
 
@@ -44,4 +46,5 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
             LocalDateTime endDate
     );
 
+    List<Order> findByDeliverBy(Long deliverBy);
 }

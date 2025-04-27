@@ -1,5 +1,6 @@
 package com.user.user_service.controllers;
 
+import com.user.user_service.dto.response.DeliveryPersonSignupResponse;
 import com.user.user_service.dto.response.RestaurantOwnerResponse;
 import com.user.user_service.models.User;
 import com.user.user_service.services.UserService;
@@ -55,5 +56,27 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Iterable<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/verify-delivery-person/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<DeliveryPersonSignupResponse> verifyDeliveryPerson(
+            @PathVariable Long id
+    ){
+        return ResponseEntity.ok(userService.verifyDeliveryPerson(id));
+    }
+
+    @GetMapping("/unverify-delivery-person/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> unverifyDeliveryPerson(
+            @PathVariable Long id
+    ){
+        userService.unverifyDeliveryPerson(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/get-available-delivery-persons")
+    public ResponseEntity<Iterable<DeliveryPersonSignupResponse>> getAvailableDeliveryPersons() {
+        return ResponseEntity.ok(userService.getAvailableDeliveryPersons());
     }
 }

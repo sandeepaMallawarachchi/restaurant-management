@@ -1,5 +1,6 @@
 package com.user.user_service.services;
 
+import com.user.user_service.dto.response.DeliveryPersonSignupResponse;
 import com.user.user_service.dto.response.RestaurantOwnerResponse;
 import com.user.user_service.exception.ResourceNotFoundException;
 import com.user.user_service.models.User;
@@ -9,6 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -18,9 +20,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+    private final SignupService signupService;
 
 
-//    @Cacheable(value = "userCache", key = "#id")
+    //    @Cacheable(value = "userCache", key = "#id")
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with id: " + id)
@@ -62,6 +65,47 @@ public class UserService {
         userRepository.save(user);
     }
 
+
+    public DeliveryPersonSignupResponse verifyDeliveryPerson(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+        if(!user.getRoles().contains("ROLE_DELIVERY_PERSON") ) {
+            throw new ResourceNotFoundException("User is not a delivery person");
+        }
+
+        user.setVerified(true);
+        user.setAvailability(true);
+        userRepository.save(user);
+        return signupService.mapToDeliveryPersonSignupResponse(user, user.getDeliveryVehicle());
+    }
+
+    public void unverifyDeliveryPerson(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+        if(!user.getRoles().contains("ROLE_DELIVERY_PERSON") ) {
+            throw new ResourceNotFoundException("User is not a delivery person");
+        }
+
+        user.setVerified(false);
+        user.setAvailability(false);
+        userRepository.save(user);
+    }
+
+    public List<DeliveryPersonSignupResponse> getAvailableDeliveryPersons() {
+        List<User> availableUsers = new ArrayList<>();
+        userRepository.findAll().forEach(user -> {
+            if(user.getRoles().contains("ROLE_DELIVERY_PERSON") && user.isAvailability() && user.isVerified()) {
+                availableUsers.add(user);
+            }
+        });
+        return availableUsers.stream()
+                .map(user -> signupService.mapToDeliveryPersonSignupResponse(
+                        user, user.getDeliveryVehicle()
+                ))
+                .toList();
+    }
 
     private RestaurantOwnerResponse mapToRestaurantOwnerResponse(User user) {
         return RestaurantOwnerResponse.builder()

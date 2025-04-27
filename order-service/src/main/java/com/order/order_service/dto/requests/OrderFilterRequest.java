@@ -18,6 +18,7 @@ public class OrderFilterRequest {
     LocalDateTime orderDateEnd;
     PaymentMethod paymentMethod;
     PaymentStatus paymentStatus;
+    Long deliverBy;
     Integer page;
     Integer size;
 }

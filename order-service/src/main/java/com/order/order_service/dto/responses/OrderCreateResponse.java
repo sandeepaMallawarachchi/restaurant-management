@@ -29,6 +29,7 @@ public class OrderCreateResponse {
     private String deliveryUserPhoneNumber;
     private LocalDateTime estimatedDeliveryTime;
     private String specialNote;
+    private Long deliveryId;
     private OrderLocationResponse location;
     private List<OrderItemCreateResponse> items;
 }

@@ -83,6 +83,8 @@ public class Order {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private OrderLocation location;
 
+    private Long deliverBy;
+
     @CreatedDate
     private LocalDateTime createdDate;
     @LastModifiedDate

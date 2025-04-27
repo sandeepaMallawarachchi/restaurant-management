@@ -4,6 +4,7 @@ import com.order.order_service.dto.requests.OrderCreateRequest;
 import com.order.order_service.dto.requests.OrderFilterRequest;
 import com.order.order_service.dto.responses.OrderCreateResponse;
 import com.order.order_service.exception.InvalidInputException;
+import com.order.order_service.models.Order;
 import com.order.order_service.models.OrderStatus;
 import com.order.order_service.models.PaymentMethod;
 import com.order.order_service.models.PaymentStatus;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -42,6 +44,7 @@ public class OrderController {
             @RequestParam(required = false) LocalDateTime orderDateEnd,
             @RequestParam(required = false) String paymentMethod,
             @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) Long deliverBy,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ){
@@ -59,7 +62,7 @@ public class OrderController {
         }
         OrderFilterRequest orderFilterRequest = mapToOrderFilterRequest(
                 userId,orderStatus1,restaurantId,orderDateStart,orderDateEnd,paymentMethod1,
-                paymentStatus1,page,size
+                paymentStatus1,deliverBy, page,size
         );
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
@@ -82,6 +85,7 @@ public class OrderController {
             @RequestParam(required = false) LocalDateTime orderDateEnd,
             @RequestParam(required = false) String paymentMethod,
             @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) Long deliverBy,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ){
@@ -99,7 +103,7 @@ public class OrderController {
         }
         OrderFilterRequest orderFilterRequest = mapToOrderFilterRequest(
                 userId,orderStatus1,restaurantId,orderDateStart,orderDateEnd,paymentMethod1,
-                paymentStatus1,page,size
+                paymentStatus1,deliverBy,page,size
         );
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
@@ -114,6 +118,7 @@ public class OrderController {
             @RequestParam(required = false) LocalDateTime orderDateEnd,
             @RequestParam(required = false) String paymentMethod,
             @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) Long deliverBy,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ){
@@ -131,7 +136,7 @@ public class OrderController {
         }
         OrderFilterRequest orderFilterRequest = mapToOrderFilterRequest(
                 userId,orderStatus1,restaurantId,orderDateStart,orderDateEnd,paymentMethod1,
-                paymentStatus1,page,size
+                paymentStatus1,deliverBy,page,size
         );
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
@@ -140,22 +145,24 @@ public class OrderController {
     public ResponseEntity<OrderCreateResponse> updateOrderStatus(
             @PathVariable("id") Long orderId,
             @RequestParam String status,
-            @RequestParam Long userId
+            @RequestParam Long userId,
+            @RequestBody(required = false) List<Long> availableDeliveryManIds
     ){
         if(status == null){
             throw new InvalidInputException("Status can't be null");
         }
         OrderStatus status1 = OrderStatus.valueOf(status.toUpperCase());
-        return ResponseEntity.ok(orderService.changeOrderStatus(orderId, status1, userId));
+        return ResponseEntity.ok(orderService.changeOrderStatus(orderId, status1, userId, availableDeliveryManIds));
     }
 
     @PutMapping("/order-status-upgrade/{id}")
     @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
     public ResponseEntity<OrderCreateResponse> upgradeOrderStatus(
             @PathVariable("id") Long orderId,
-            @RequestParam Long userId
+            @RequestParam Long userId,
+            @RequestBody(required = false) List<Long> availableDeliveryManIds
     ){
-        return ResponseEntity.ok(orderService.upgradeOrderStatus(orderId, userId));
+        return ResponseEntity.ok(orderService.upgradeOrderStatus(orderId, userId, availableDeliveryManIds));
     }
 
     @GetMapping("/income/{id}")
@@ -184,6 +191,14 @@ public class OrderController {
                 specialNote, userId
         ));
     }
+
+    @GetMapping("delivery-person/{id}")
+    public ResponseEntity<List<OrderCreateResponse>> getDeliveryPersonsOrders(
+            @PathVariable("id") Long deliveryPersonId
+    ){
+        return ResponseEntity.ok(orderService.getDeliveryPersonsOrders(deliveryPersonId));
+    }
+
     private OrderFilterRequest mapToOrderFilterRequest(
             Long userId,
             OrderStatus orderStatus,
@@ -192,6 +207,7 @@ public class OrderController {
             LocalDateTime orderDateEnd,
             PaymentMethod paymentMethod,
             PaymentStatus paymentStatus,
+            Long deliverBy,
             Integer page,
             Integer size
     ){
@@ -203,6 +219,7 @@ public class OrderController {
                 .orderDateEnd(orderDateEnd)
                 .paymentMethod(paymentMethod)
                 .paymentStatus(paymentStatus)
+                .deliverBy(deliverBy)
                 .page(page)
                 .size(size)
                 .build();

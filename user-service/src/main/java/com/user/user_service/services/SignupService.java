@@ -131,6 +131,9 @@ public class SignupService {
         user.setCity(request.getCity());
         user.setPostalCode(request.getPostalCode());
         user.setProfileImage(request.getProfileImg());
+        user.setNic(request.getNic());
+        user.setAvailability(false);
+        user.setVerified(false);
 
         logger.debug("Creating delivery vehicle for user: {}", request.getUsername());
         DeliveryVehicle vehicle = new DeliveryVehicle();
@@ -231,7 +234,8 @@ public class SignupService {
                 .build();
     }
 
-    private DeliveryPersonSignupResponse mapToDeliveryPersonSignupResponse(User user, DeliveryVehicle vehicle) {
+    public DeliveryPersonSignupResponse mapToDeliveryPersonSignupResponse(User user,
+                                                                     DeliveryVehicle vehicle) {
         logger.debug("Mapping delivery person to response: {}", user.getId());
         return DeliveryPersonSignupResponse.builder()
                 .id(user.getId())

@@ -21,4 +21,6 @@ public class DeliveryPersonSignupResponse {
     private String nic;
     private Set<String> roles;
     private VehicleResponse vehicle;
+    private boolean availability;
+    private boolean verified;
 }

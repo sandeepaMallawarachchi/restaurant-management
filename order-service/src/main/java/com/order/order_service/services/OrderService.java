@@ -6,6 +6,7 @@ import com.order.order_service.dto.requests.OrderItemCreateRequest;
 import com.order.order_service.dto.responses.OrderCreateResponse;
 import com.order.order_service.dto.responses.OrderItemCreateResponse;
 import com.order.order_service.dto.responses.OrderLocationResponse;
+import com.order.order_service.exception.ResourceNotFoundException;
 import com.order.order_service.models.*;
 import com.order.order_service.repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 @Controller
 @Transactional
@@ -55,6 +57,7 @@ public class OrderService {
             order.setRestaurantId(request.getRestaurantId());
             order.setOrderStatus(OrderStatus.PENDING);
             order.setPaymentStatus(PaymentStatus.PENDING);
+            order.setDeliverBy(null);
             order.setSpecialNote(request.getSpecialNote());
             order.setDeliveryAddress(request.getDeliveryAddress());
             order.setPhoneNumber(request.getPhoneNumber());
@@ -120,12 +123,14 @@ public class OrderService {
                 request.getOrderDateEnd(),
                 request.getPaymentMethod(),
                 request.getPaymentStatus(),
+                request.getDeliverBy(),
                 pageable
         );
         return orders.map(this::mapToOrderCreateResponse);
     }
 
-    public OrderCreateResponse changeOrderStatus(Long orderId, OrderStatus orderStatus, Long userId) {
+    public OrderCreateResponse changeOrderStatus(Long orderId, OrderStatus orderStatus,
+                                                 Long userId, List<Long> deliveryByIds) {
         logger.info("Changing order status for order with ID: {} for user: {}", orderId, userId);
         validateUserId(userId);
         Order order = orderRepository.findById(orderId).orElseThrow(
@@ -136,6 +141,9 @@ public class OrderService {
         }
         order.setOrderStatus(orderStatus);
 
+        if(orderStatus == OrderStatus.CONFIRMED){
+            order.setDeliverBy(assignDeliveryBy(deliveryByIds, orderId));
+        }
         if (orderStatus == OrderStatus.CANCELLED) {
             cancelOrder(order);
         }
@@ -164,7 +172,7 @@ public class OrderService {
         logger.info("Order cancelled successfully for order with ID: {}", order.getId());
     }
 
-    public OrderCreateResponse upgradeOrderStatus(Long orderId, Long userId) {
+    public OrderCreateResponse upgradeOrderStatus(Long orderId, Long userId, List<Long> deliveryByIds) {
         logger.info("Upgrading order status for order with ID: {} for user: {}", orderId, userId);
         validateUserId(userId);
         Order order = orderRepository.findById(orderId).orElseThrow(
@@ -175,21 +183,40 @@ public class OrderService {
         }
         if (order.getOrderStatus() == OrderStatus.PENDING) {
             order.setOrderStatus(OrderStatus.CONFIRMED);
+            order.setDeliverBy(assignDeliveryBy(deliveryByIds, orderId));
+            orderRepository.save(order);
+            logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+            return mapToOrderCreateResponse(order);
         }
         if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
             order.setOrderStatus(OrderStatus.PREPARING);
+            orderRepository.save(order);
+            logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+            return mapToOrderCreateResponse(order);
         }
         if (order.getOrderStatus() == OrderStatus.PREPARING) {
             order.setOrderStatus(OrderStatus.READY_FOR_DELIVERY);
+            orderRepository.save(order);
+            logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+            return mapToOrderCreateResponse(order);
         }
         if (order.getOrderStatus() == OrderStatus.READY_FOR_DELIVERY) {
             order.setOrderStatus(OrderStatus.OUT_FOR_DELIVERY);
+            orderRepository.save(order);
+            logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+            return mapToOrderCreateResponse(order);
         }
         if (order.getOrderStatus() == OrderStatus.OUT_FOR_DELIVERY) {
             order.setOrderStatus(OrderStatus.NEAR_BY);
+            orderRepository.save(order);
+            logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+            return mapToOrderCreateResponse(order);
         }
         if (order.getOrderStatus() == OrderStatus.NEAR_BY) {
             order.setOrderStatus(OrderStatus.DELIVERED);
+            orderRepository.save(order);
+            logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+            return mapToOrderCreateResponse(order);
         }
         orderRepository.save(order);
         logger.info("Order status upgraded successfully for order with ID: {}", orderId);
@@ -282,6 +309,7 @@ public class OrderService {
                 .estimatedDeliveryTime(order.getEstimatedDeliveryTime())
                 .specialNote(order.getSpecialNote())
                 .location(mapToOrderLocationResponse(order.getLocation()))
+                .deliveryId(order.getDeliverBy())
                 .items(order.getItems().stream()
                         .map(this::mapToOrderItemCreateRequest)
                         .toList())
@@ -351,5 +379,19 @@ public class OrderService {
         orderRepository.save(order);
         logger.info("Order updated successfully for order with ID: {}", orderId);
         return mapToOrderCreateResponse(order);
+    }
+
+    public Long assignDeliveryBy(List<Long> deliveryByIds, Long orderId) {
+        Random random = new Random();
+        int randomIndex = random.nextInt(deliveryByIds.size());
+
+        return deliveryByIds.get(randomIndex);
+    }
+
+    public List<OrderCreateResponse> getDeliveryPersonsOrders(Long deliveryPersonId) {
+        List<Order> orders = orderRepository.findByDeliverBy(deliveryPersonId);
+        return orders.stream()
+                .map(this::mapToOrderCreateResponse)
+                .toList();
     }
 }
