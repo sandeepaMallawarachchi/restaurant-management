@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface OrderRepository  extends JpaRepository<Order,Long> {
@@ -32,6 +33,15 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
             @Param("paymentMethod") PaymentMethod paymentMethod,
             @Param("paymentStatus") PaymentStatus paymentStatus,
             Pageable pageable
+    );
+
+    @Query("SELECT o FROM Order o " +
+            "WHERE o.restaurantId = :restaurantId AND " +
+            "o.createdDate BETWEEN :startDate AND :endDate")
+    List<Order> getByRestaurantIdAndDateBetween(
+            Long restaurantId,
+            LocalDateTime startDate,
+            LocalDateTime endDate
     );
 
 }

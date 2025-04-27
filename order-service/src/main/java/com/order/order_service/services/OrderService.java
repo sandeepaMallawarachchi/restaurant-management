@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -123,6 +125,103 @@ public class OrderService {
         return orders.map(this::mapToOrderCreateResponse);
     }
 
+    public OrderCreateResponse changeOrderStatus(Long orderId, OrderStatus orderStatus, Long userId) {
+        logger.info("Changing order status for order with ID: {} for user: {}", orderId, userId);
+        validateUserId(userId);
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new RuntimeException("Order not found")
+        );
+        if (!Objects.equals(order.getUserId(), userId)) {
+            throw new RuntimeException("User ID does not match with the order's user ID");
+        }
+        order.setOrderStatus(orderStatus);
+
+        if (orderStatus == OrderStatus.CANCELLED) {
+            cancelOrder(order);
+        }
+        orderRepository.save(order);
+        logger.info("Order status changed successfully for order with ID: {}", orderId);
+
+        return mapToOrderCreateResponse(order);
+    }
+
+    private void cancelOrder(Order order) {
+        logger.info("Canceling order with ID: {}", order.getId());
+        order.setOrderStatus(OrderStatus.CANCELLED);
+
+        if(order.getPaymentMethod() == PaymentMethod.CREDIT_CARD_ONLINE){
+            if(order.getPaymentStatus() == PaymentStatus.COMPLETED){
+                order.setPaymentStatus(PaymentStatus.REFUND_REQUESTED);
+            }
+            if(order.getPaymentStatus() == PaymentStatus.PENDING){
+                order.setPaymentStatus(PaymentStatus.CANCELLED);
+            }
+        }
+
+        if((order.getPaymentMethod() == PaymentMethod.CASH_ON_DELIVERY) || (order.getPaymentMethod() == PaymentMethod.CREDIT_CARD_ON_DELIVERY)){
+            order.setPaymentStatus(PaymentStatus.CANCELLED);
+        }
+        logger.info("Order cancelled successfully for order with ID: {}", order.getId());
+    }
+
+    public OrderCreateResponse upgradeOrderStatus(Long orderId, Long userId) {
+        logger.info("Upgrading order status for order with ID: {} for user: {}", orderId, userId);
+        validateUserId(userId);
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new RuntimeException("Order not found")
+        );
+        if (!Objects.equals(order.getUserId(), userId)) {
+            throw new RuntimeException("User ID does not match with the order's user ID");
+        }
+        if (order.getOrderStatus() == OrderStatus.PENDING) {
+            order.setOrderStatus(OrderStatus.CONFIRMED);
+        }
+        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
+            order.setOrderStatus(OrderStatus.PREPARING);
+        }
+        if (order.getOrderStatus() == OrderStatus.PREPARING) {
+            order.setOrderStatus(OrderStatus.READY_FOR_DELIVERY);
+        }
+        if (order.getOrderStatus() == OrderStatus.READY_FOR_DELIVERY) {
+            order.setOrderStatus(OrderStatus.OUT_FOR_DELIVERY);
+        }
+        if (order.getOrderStatus() == OrderStatus.OUT_FOR_DELIVERY) {
+            order.setOrderStatus(OrderStatus.NEAR_BY);
+        }
+        if (order.getOrderStatus() == OrderStatus.NEAR_BY) {
+            order.setOrderStatus(OrderStatus.DELIVERED);
+        }
+        orderRepository.save(order);
+        logger.info("Order status upgraded successfully for order with ID: {}", orderId);
+        return mapToOrderCreateResponse(order);
+    }
+
+    public Double getRestaurantTotalIncome(
+            Long restaurantId,
+            LocalDateTime startDate,
+            LocalDateTime endDate
+    ){
+        if(startDate == null){
+            startDate = LocalDate.now().atStartOfDay();
+            if(endDate == null){
+                endDate = LocalDate.now().atTime(23, 59, 59);
+            }
+        }
+        if(endDate == null){
+            endDate = startDate.toLocalDate().atTime(23, 59, 59);
+        }
+        if(startDate.isAfter(endDate)){
+            throw new RuntimeException("Start date must be before end date");
+        }
+
+        List<Order> orders = orderRepository.getByRestaurantIdAndDateBetween(restaurantId, startDate, endDate);
+        Double totalIncome = 0.0;
+        for(Order order : orders){
+            totalIncome += order.getFinalPrice();
+        }
+        return totalIncome;
+    }
+
     private void validateUserId(Long userId) {
         logger.debug("Validating user ID: {}", userId);
         if (userId == null) {
@@ -213,4 +312,44 @@ public class OrderService {
                 .build();
     }
 
+    public OrderCreateResponse updateOrder(
+            Long orderId,
+            String phoneNumber,
+            String email,
+            String deliveryUserPhoneNumber,
+            String deliveryUserName,
+            String specialNote,
+            Long userId
+    ) {
+        logger.info("Updating order with ID: {} for user: {}", orderId, userId);
+        validateUserId(userId);
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new RuntimeException("Order not found")
+        );
+        if (!Objects.equals(order.getUserId(), userId)) {
+            throw new RuntimeException("User ID does not match with the order's user ID");
+        }
+
+        if((order.getOrderStatus() == OrderStatus.CANCELLED) || (order.getOrderStatus() == OrderStatus.DELIVERED)){
+            throw new RuntimeException("Order cannot be updated after it has been cancelled or delivered");
+        }
+        if (phoneNumber != null) {
+            order.setPhoneNumber(phoneNumber);
+        }
+        if (email != null) {
+            order.setEmail(email);
+        }
+        if (deliveryUserPhoneNumber != null) {
+            order.setDeliveryUserPhoneNumber(deliveryUserPhoneNumber);
+        }
+        if (deliveryUserName != null) {
+            order.setDeliveryUserName(deliveryUserName);
+        }
+        if (specialNote != null) {
+            order.setSpecialNote(specialNote);
+        }
+        orderRepository.save(order);
+        logger.info("Order updated successfully for order with ID: {}", orderId);
+        return mapToOrderCreateResponse(order);
+    }
 }

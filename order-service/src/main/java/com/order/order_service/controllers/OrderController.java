@@ -3,6 +3,7 @@ package com.order.order_service.controllers;
 import com.order.order_service.dto.requests.OrderCreateRequest;
 import com.order.order_service.dto.requests.OrderFilterRequest;
 import com.order.order_service.dto.responses.OrderCreateResponse;
+import com.order.order_service.exception.InvalidInputException;
 import com.order.order_service.models.OrderStatus;
 import com.order.order_service.models.PaymentMethod;
 import com.order.order_service.models.PaymentStatus;
@@ -135,6 +136,54 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
 
+    @PutMapping("/status/{id}")
+    public ResponseEntity<OrderCreateResponse> updateOrderStatus(
+            @PathVariable("id") Long orderId,
+            @RequestParam String status,
+            @RequestParam Long userId
+    ){
+        if(status == null){
+            throw new InvalidInputException("Status can't be null");
+        }
+        OrderStatus status1 = OrderStatus.valueOf(status.toUpperCase());
+        return ResponseEntity.ok(orderService.changeOrderStatus(orderId, status1, userId));
+    }
+
+    @PutMapping("/order-status-upgrade/{id}")
+    @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
+    public ResponseEntity<OrderCreateResponse> upgradeOrderStatus(
+            @PathVariable("id") Long orderId,
+            @RequestParam Long userId
+    ){
+        return ResponseEntity.ok(orderService.upgradeOrderStatus(orderId, userId));
+    }
+
+    @GetMapping("/income/{id}")
+    @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
+    public ResponseEntity<Double> totalIncomeOfRestaurant(
+            @PathVariable("id") Long restaurantId,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate
+    ){
+        return ResponseEntity.ok(orderService.getRestaurantTotalIncome(
+                restaurantId, startDate, endDate));
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<OrderCreateResponse> updateOrder(
+            @PathVariable("id") Long orderId,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String deliveryUserName,
+            @RequestParam(required = false) String deliveryUserPhoneNumber,
+            @RequestParam(required = false) String specialNote,
+            @RequestAttribute("userId") Long userId
+    ){
+        return ResponseEntity.ok(orderService.updateOrder(
+                orderId, phoneNumber, email, deliveryUserPhoneNumber, deliveryUserName,
+                specialNote, userId
+        ));
+    }
     private OrderFilterRequest mapToOrderFilterRequest(
             Long userId,
             OrderStatus orderStatus,

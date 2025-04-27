@@ -31,5 +31,4 @@ public class OrderCreateResponse {
     private String specialNote;
     private OrderLocationResponse location;
     private List<OrderItemCreateResponse> items;
-    private OrderStatus status;
 }
