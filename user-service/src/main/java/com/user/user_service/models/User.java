@@ -44,12 +44,10 @@ public class User {
     @NotBlank(message = "Last name is required")
     private String lastName;
 
-    @NotBlank(message = "Phone number is required")
     private String phoneNumber;
 
     private LocalDateTime lastLogin;
 
-    @NotBlank(message = "Address is required")
     private String address;
 
     @ElementCollection
