@@ -30,6 +30,10 @@ public class Restaurant {
 
     private boolean isAvailable = true;
     private boolean verifiedByAdmin = false;
+
+    @NotBlank(message = "Delivery time is required")
+    private Long deliveryTime;
+
     private List<MenuItem> menu;
 
     public Restaurant() {
@@ -97,6 +101,14 @@ public class Restaurant {
 
     public void setVerifiedByAdmin(boolean verifiedByAdmin) {
         this.verifiedByAdmin = verifiedByAdmin;
+    }
+
+    public void setDeliveryTime(Long deliveryTime) {
+        this.deliveryTime = deliveryTime;
+    }
+
+    public Long getDeliveryTime() {
+        return deliveryTime;
     }
 
     public List<MenuItem> getMenu() {

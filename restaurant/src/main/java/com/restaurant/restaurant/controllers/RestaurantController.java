@@ -18,7 +18,7 @@ public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> addRestaurant(@RequestBody Restaurant restaurant) {
         try {
             Restaurant saved = restaurantService.addRestaurant(restaurant);

@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @Service
 public class MenuItemService {
+
     @Autowired
     private MenuItemRepository menuItemRepository;
 
@@ -25,12 +26,11 @@ public class MenuItemService {
 
         Long userId = items.get(0).getUserId();
 
-        Restaurant restaurant = restaurantService.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
-
-        if (!restaurant.isVerifiedByAdmin()) {
-            throw new RuntimeException("Restaurant is not verified");
-        }
+        List<Restaurant> restaurants = restaurantService.findByUserId(userId);
+        Restaurant restaurant = restaurants.stream()
+                .filter(Restaurant::isVerifiedByAdmin)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No verified restaurant found"));
 
         List<MenuItem> savedItems = new ArrayList<>();
         for (MenuItem item : items) {
@@ -50,8 +50,8 @@ public class MenuItemService {
         List<MenuItem> allItems = menuItemRepository.findAll();
         return allItems.stream()
                 .filter(item -> {
-                    Optional<Restaurant> rest = restaurantService.findByUserId(item.getUserId());
-                    return rest.isPresent() && rest.get().isVerifiedByAdmin();
+                    List<Restaurant> restaurants = restaurantService.findByUserId(item.getUserId());
+                    return restaurants.stream().anyMatch(Restaurant::isVerifiedByAdmin);
                 })
                 .toList();
     }
@@ -65,34 +65,34 @@ public class MenuItemService {
     }
 
     public List<MenuItem> getMenuItemsByUserId(String userId) {
-        Restaurant restaurant = restaurantService.findByUserId(Long.parseLong(userId))
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        Long uid = Long.parseLong(userId);
+        List<Restaurant> restaurants = restaurantService.findByUserId(uid);
+        Restaurant restaurant = restaurants.stream()
+                .filter(Restaurant::isVerifiedByAdmin)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No verified restaurant found"));
 
-        if (!restaurant.isVerifiedByAdmin()) {
-            throw new RuntimeException("Restaurant is not verified by admin");
-        }
-
-        return menuItemRepository.findByUserId(Long.parseLong(userId));
+        return menuItemRepository.findByUserId(uid);
     }
 
     public MenuItem updateMenuItem(String id, Map<String, Object> updates) {
         MenuItem menuItem = menuItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Menu item not found"));
 
-        Restaurant restaurant = restaurantService.findByUserId(menuItem.getUserId())
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
-
-        if (!restaurant.isVerifiedByAdmin()) {
-            throw new RuntimeException("Restaurant is not verified by admin");
-        }
+        List<Restaurant> restaurants = restaurantService.findByUserId(menuItem.getUserId());
+        Restaurant restaurant = restaurants.stream()
+                .filter(Restaurant::isVerifiedByAdmin)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No verified restaurant found"));
 
         updates.forEach((key, value) -> {
             switch (key) {
-                case "userId" -> menuItem.setUserId((Long) value);
+                case "userId" -> menuItem.setUserId(Long.valueOf(value.toString()));
                 case "name" -> menuItem.setName((String) value);
-                case "price" -> menuItem.setPrice((Double) value);
+                case "price" -> menuItem.setPrice(Double.valueOf(value.toString()));
                 case "description" -> menuItem.setDescription((String) value);
-                case "available" -> menuItem.setAvailable((Boolean) value);
+                case "category" -> menuItem.setCategory((String) value);
+                case "available" -> menuItem.setAvailable(Boolean.valueOf(value.toString()));
             }
         });
 

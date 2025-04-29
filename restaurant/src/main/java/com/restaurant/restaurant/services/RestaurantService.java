@@ -43,6 +43,7 @@ public class RestaurantService {
                 case "city" -> restaurant.setCity((String) value);
                 case "postal" -> restaurant.setPostal((String) value);
                 case "available" -> restaurant.setAvailable((Boolean) value);
+                case "deliveryTime" -> restaurant.setDeliveryTime(Long.valueOf(value.toString()));
                 case "verifiedByAdmin" -> restaurant.setVerifiedByAdmin((Boolean) value);
                 case "menu" -> restaurant.setMenu((List<MenuItem>) value);
             }
@@ -55,7 +56,7 @@ public class RestaurantService {
         restaurantRepository.deleteById(id);
     }
 
-    public Optional<Restaurant> findByUserId(Long userId) {
+    public List<Restaurant> findByUserId(Long userId) {
         return restaurantRepository.findByUserId(userId);
     }
 

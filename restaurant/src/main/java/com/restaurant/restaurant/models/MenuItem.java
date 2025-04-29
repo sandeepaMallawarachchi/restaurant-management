@@ -26,6 +26,9 @@ public class MenuItem {
 
     private String description;
 
+    @NotNull(message = "Category is required")
+    private String category;
+
     private boolean available = true;
 
     public String getId() { return id; }
@@ -47,6 +50,14 @@ public class MenuItem {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public boolean isAvailable() { return available; }
     public void setAvailable(boolean available) { this.available = available; }
