@@ -25,8 +25,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/restaurants/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_RESTAURANT_OWNER")
-                        .requestMatchers("/menu/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_RESTAURANT_OWNER")
+                        .requestMatchers("/restaurants/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_RESTAURANT_OWNER", "ROLE_DELIVERY_PERSON")
+                        .requestMatchers("/delivery/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DELIVERY_PERSON", "ROLE_RESTAURANT_OWNER")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                         .anyRequest().authenticated()
