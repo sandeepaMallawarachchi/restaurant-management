@@ -39,6 +39,15 @@ public class RestaurantController {
         return restaurant.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Restaurant>> getRestaurantByUserId(@PathVariable Long userId) {
+        List<Restaurant> items = restaurantService.findByUserId(userId);
+        if (items.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(items);
+    }
+
     @PreAuthorize("@restaurantSecurity.isOwnerOrAdmin(authentication, #id)")
     @PatchMapping("/{id}")
     public ResponseEntity<Restaurant> patchRestaurant(@PathVariable String id, @RequestBody Map<String, Object> updates) {
