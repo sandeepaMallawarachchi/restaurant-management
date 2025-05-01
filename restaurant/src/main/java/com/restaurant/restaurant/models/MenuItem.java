@@ -29,6 +29,8 @@ public class MenuItem {
     @NotNull(message = "Category is required")
     private String category;
 
+    private String imageUrl;
+
     private boolean available = true;
 
     public String getId() { return id; }
@@ -57,6 +59,14 @@ public class MenuItem {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public boolean isAvailable() { return available; }

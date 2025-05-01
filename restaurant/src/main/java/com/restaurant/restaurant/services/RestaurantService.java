@@ -44,6 +44,7 @@ public class RestaurantService {
                 case "postal" -> restaurant.setPostal((String) value);
                 case "available" -> restaurant.setAvailable((Boolean) value);
                 case "deliveryTime" -> restaurant.setDeliveryTime(Long.valueOf(value.toString()));
+                case "restaurantImage" -> restaurant.setRestaurantImage((String) value);
                 case "verifiedByAdmin" -> restaurant.setVerifiedByAdmin((Boolean) value);
                 case "menu" -> restaurant.setMenu((List<MenuItem>) value);
             }

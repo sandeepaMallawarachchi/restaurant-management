@@ -92,6 +92,7 @@ public class MenuItemService {
                 case "price" -> menuItem.setPrice(Double.valueOf(value.toString()));
                 case "description" -> menuItem.setDescription((String) value);
                 case "category" -> menuItem.setCategory((String) value);
+                case "imageUrl" -> menuItem.setImageUrl((String) value);
                 case "available" -> menuItem.setAvailable(Boolean.valueOf(value.toString()));
             }
         });

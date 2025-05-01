@@ -21,7 +21,7 @@ public class MenuItemController {
     private MenuItemService menuItemService;
 
     @PreAuthorize("hasRole('ADMIN') or #items[0].userId.toString() == authentication.name")
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> addMenuItems(@Valid @RequestBody List<MenuItem> items) {
         try {
             menuItemService.addMenuItem(items);

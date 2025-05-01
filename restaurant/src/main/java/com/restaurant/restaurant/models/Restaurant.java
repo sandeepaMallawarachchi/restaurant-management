@@ -1,6 +1,7 @@
 package com.restaurant.restaurant.models;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -33,6 +34,8 @@ public class Restaurant {
 
     @NotBlank(message = "Delivery time is required")
     private Long deliveryTime;
+
+    private String restaurantImage;
 
     private List<MenuItem> menu;
 
@@ -109,6 +112,14 @@ public class Restaurant {
 
     public Long getDeliveryTime() {
         return deliveryTime;
+    }
+
+    public String getRestaurantImage() {
+        return restaurantImage;
+    }
+
+    public void setRestaurantImage(String restaurantImage) {
+        this.restaurantImage = restaurantImage;
     }
 
     public List<MenuItem> getMenu() {
