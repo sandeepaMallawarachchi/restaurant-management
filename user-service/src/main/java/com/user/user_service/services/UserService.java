@@ -1,5 +1,6 @@
 package com.user.user_service.services;
 
+import com.user.user_service.dto.request.VehicleUpdateRequest;
 import com.user.user_service.dto.response.DeliveryPersonSignupResponse;
 import com.user.user_service.dto.response.RestaurantOwnerResponse;
 import com.user.user_service.dto.response.VehicleResponse;
@@ -151,7 +152,7 @@ public class UserService {
 
 
 
-    public VehicleResponse updateVehicle(Long userId, String vehicleNumber, String vehicleImage, String vehicleDocuments, String drivingLicense) {
+    public VehicleResponse updateVehicle(Long userId, VehicleUpdateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with id: " + userId)
         );
@@ -166,11 +167,10 @@ public class UserService {
             throw new ResourceNotFoundException("Delivery vehicle not found for this user");
         }
 
-        if (vehicleNumber != null) vehicle.setVehicleNumber(vehicleNumber);
-        if (vehicleImage != null) vehicle.setVehicleImg(vehicleImage);
-        if (vehicleDocuments != null) vehicle.setVehicleDocuments(vehicleDocuments);
-        if (drivingLicense != null) vehicle.setDrivingLicense(drivingLicense);
-
+        vehicle.setVehicleNumber(request.getVehicleNumber());
+        vehicle.setVehicleImg(request.getVehicleImg());
+        vehicle.setVehicleDocuments(request.getVehicleDocuments());
+        vehicle.setDrivingLicense(request.getLicenseNumber());
 
         userRepository.save(user); // vehicle is part of user
 

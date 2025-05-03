@@ -1,5 +1,6 @@
 package com.user.user_service.controllers;
 
+import com.user.user_service.dto.request.VehicleUpdateRequest;
 import com.user.user_service.dto.response.DeliveryPersonSignupResponse;
 import com.user.user_service.dto.response.RestaurantOwnerResponse;
 import com.user.user_service.dto.response.VehicleResponse;
@@ -89,12 +90,8 @@ public class UserController {
     @PutMapping("/update-vehicle")
     public ResponseEntity<VehicleResponse> updateDeliveryVehicle(
             @RequestAttribute(value = "userId") Long userId,
-            @RequestParam(required = false) String vehicleNumber,
-            @RequestParam(required = false) String vehicleImage,
-            @RequestParam(required = false) String vehicleDocuments,
-            @RequestParam(required = false) String drivingLicense
-    ) {
-        return ResponseEntity.ok(userService.updateVehicle(userId, vehicleNumber, vehicleImage,
-                vehicleDocuments, drivingLicense));
+            @RequestBody VehicleUpdateRequest request
+            ) {
+        return ResponseEntity.ok(userService.updateVehicle(userId, request));
     }
 }
