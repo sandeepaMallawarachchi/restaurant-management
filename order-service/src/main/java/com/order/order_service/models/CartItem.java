@@ -28,7 +28,7 @@ public class CartItem {
     private Cart cart;
 
     @NotNull(message = "Product ID is required")
-    private Long productId;
+    private String productId;
 
     @NotBlank(message = "Product name is required")
     private String productName;

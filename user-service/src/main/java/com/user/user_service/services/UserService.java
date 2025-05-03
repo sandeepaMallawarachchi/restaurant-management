@@ -2,11 +2,12 @@ package com.user.user_service.services;
 
 import com.user.user_service.dto.response.DeliveryPersonSignupResponse;
 import com.user.user_service.dto.response.RestaurantOwnerResponse;
+import com.user.user_service.dto.response.VehicleResponse;
 import com.user.user_service.exception.ResourceNotFoundException;
+import com.user.user_service.models.DeliveryVehicle;
 import com.user.user_service.models.User;
 import com.user.user_service.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final SignupService signupService;
-
 
     //    @Cacheable(value = "userCache", key = "#id")
     public User getUserById(Long id) {
@@ -70,7 +70,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with id: " + userId)
         );
-        if(!user.getRoles().contains("ROLE_DELIVERY_PERSON") ) {
+        if (!user.getRoles().contains("ROLE_DELIVERY_PERSON")) {
             throw new ResourceNotFoundException("User is not a delivery person");
         }
 
@@ -84,7 +84,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found with id: " + userId)
         );
-        if(!user.getRoles().contains("ROLE_DELIVERY_PERSON") ) {
+        if (!user.getRoles().contains("ROLE_DELIVERY_PERSON")) {
             throw new ResourceNotFoundException("User is not a delivery person");
         }
 
@@ -96,7 +96,7 @@ public class UserService {
     public List<DeliveryPersonSignupResponse> getAvailableDeliveryPersons() {
         List<User> availableUsers = new ArrayList<>();
         userRepository.findAll().forEach(user -> {
-            if(user.getRoles().contains("ROLE_DELIVERY_PERSON") && user.isAvailability() && user.isVerified()) {
+            if (user.getRoles().contains("ROLE_DELIVERY_PERSON") && user.isAvailability() && user.isVerified()) {
                 availableUsers.add(user);
             }
         });
@@ -119,5 +119,69 @@ public class UserService {
                 .build();
     }
 
+
+    public VehicleResponse getDeliveryVehicle(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+
+        boolean isDeliveryPerson = user.getRoles().stream()
+                .anyMatch(role -> role.getName().equals("ROLE_DELIVERY_PERSON"));
+
+        if (!isDeliveryPerson) {
+            throw new ResourceNotFoundException("User is not a delivery person");
+        }
+
+        if (user.getDeliveryVehicle() == null) {
+            throw new ResourceNotFoundException("Delivery vehicle not found for this user");
+        }
+
+        DeliveryVehicle vehicle = user.getDeliveryVehicle();
+
+        return VehicleResponse.builder()
+                .id(vehicle.getId())
+                .userId(vehicle.getDeliveryPerson().getId())
+                .vehicleNumber(vehicle.getVehicleNumber())
+                .vehicleType(vehicle.getVehicleType().toString())
+                .licenseNumber(vehicle.getDrivingLicense())
+                .vehicleImg(vehicle.getVehicleImg())
+                .vehicleDocuments(vehicle.getVehicleDocuments())
+                .build();
+    }
+
+
+
+    public VehicleResponse updateVehicle(Long userId, String vehicleNumber, String vehicleImage, String vehicleDocuments, String drivingLicense) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User not found with id: " + userId)
+        );
+
+        // Fix: Check using role name
+        if (user.getRoles().stream().noneMatch(role -> role.getName().equals("ROLE_DELIVERY_PERSON"))) {
+            throw new ResourceNotFoundException("User is not a delivery person");
+        }
+
+        DeliveryVehicle vehicle = user.getDeliveryVehicle();
+        if (vehicle == null) {
+            throw new ResourceNotFoundException("Delivery vehicle not found for this user");
+        }
+
+        if (vehicleNumber != null) vehicle.setVehicleNumber(vehicleNumber);
+        if (vehicleImage != null) vehicle.setVehicleImg(vehicleImage);
+        if (vehicleDocuments != null) vehicle.setVehicleDocuments(vehicleDocuments);
+        if (drivingLicense != null) vehicle.setDrivingLicense(drivingLicense);
+
+
+        userRepository.save(user); // vehicle is part of user
+
+        return VehicleResponse.builder()
+                .id(vehicle.getId())
+                .vehicleNumber(vehicle.getVehicleNumber())
+                .vehicleImg(vehicle.getVehicleImg())
+                .vehicleDocuments(vehicle.getVehicleDocuments())
+                .licenseNumber(vehicle.getDrivingLicense())
+                .vehicleType(vehicle.getVehicleType().toString())
+                .build();
+    }
 
 }

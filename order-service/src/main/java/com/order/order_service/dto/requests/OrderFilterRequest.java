@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class OrderFilterRequest {
     Long userId;
     OrderStatus orderStatus;
-    Long restaurantId;
+    String restaurantId;
     LocalDateTime orderDateStart;
     LocalDateTime orderDateEnd;
     PaymentMethod paymentMethod;

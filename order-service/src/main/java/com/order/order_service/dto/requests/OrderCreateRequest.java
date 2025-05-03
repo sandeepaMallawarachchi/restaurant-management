@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderCreateRequest {
 
-    private Long restaurantId;
+    private String restaurantId;
     private String paymentMethod;
     private Double discount;
     private Double deliveryFee;

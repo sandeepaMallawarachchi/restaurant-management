@@ -190,6 +190,7 @@ public class CartService {
             cart.removeCartItem(item);
         }
 
+        cart.setTotal(0.0);
         cartRepository.save(cart);
     }
 
@@ -234,13 +235,13 @@ public class CartService {
         }
     }
 
-    private void validateRestaurantId(Long restaurantId) {
+    private void validateRestaurantId(String restaurantId) {
         if (restaurantId == null) {
             throw new RuntimeException("restaurant id must not be null");
         }
     }
 
-    private void validateProductId(Long productId) {
+    private void validateProductId(String productId) {
         if (productId == null) {
             throw new RuntimeException("product id must not be null");
         }
@@ -261,6 +262,4 @@ public class CartService {
         }
         cartRepository.delete(cart);
     }
-
-
 }

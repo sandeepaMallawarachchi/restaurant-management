@@ -4,7 +4,6 @@ import com.order.order_service.dto.requests.OrderCreateRequest;
 import com.order.order_service.dto.requests.OrderFilterRequest;
 import com.order.order_service.dto.responses.OrderCreateResponse;
 import com.order.order_service.exception.InvalidInputException;
-import com.order.order_service.models.Order;
 import com.order.order_service.models.OrderStatus;
 import com.order.order_service.models.PaymentMethod;
 import com.order.order_service.models.PaymentStatus;
@@ -30,7 +29,7 @@ public class OrderController {
     public ResponseEntity<OrderCreateResponse> createOrder(
             @RequestAttribute("userId") Long userId,
             @RequestBody OrderCreateRequest request
-    ){
+    ) {
         return ResponseEntity.ok(orderService.createOrder(request, userId));
     }
 
@@ -39,7 +38,7 @@ public class OrderController {
     public ResponseEntity<Page<OrderCreateResponse>> getAllOrderOfUser(
             @RequestAttribute("userId") Long userId,
             @RequestParam(required = false) String orderStatus,
-            @RequestParam(required = false) Long restaurantId,
+            @RequestParam(required = false) String restaurantId,
             @RequestParam(required = false) LocalDateTime orderDateStart,
             @RequestParam(required = false) LocalDateTime orderDateEnd,
             @RequestParam(required = false) String paymentMethod,
@@ -47,7 +46,7 @@ public class OrderController {
             @RequestParam(required = false) Long deliverBy,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
+    ) {
         PaymentStatus paymentStatus1 = null;
         PaymentMethod paymentMethod1 = null;
         OrderStatus orderStatus1 = null;
@@ -61,8 +60,8 @@ public class OrderController {
             orderStatus1 = OrderStatus.valueOf(orderStatus.toUpperCase());
         }
         OrderFilterRequest orderFilterRequest = mapToOrderFilterRequest(
-                userId,orderStatus1,restaurantId,orderDateStart,orderDateEnd,paymentMethod1,
-                paymentStatus1,deliverBy, page,size
+                userId, orderStatus1, restaurantId, orderDateStart, orderDateEnd, paymentMethod1,
+                paymentStatus1, deliverBy, page, size
         );
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
@@ -71,7 +70,7 @@ public class OrderController {
     public ResponseEntity<OrderCreateResponse> getOrder(
             @RequestAttribute("userId") Long userId,
             @PathVariable("id") Long orderId
-    ){
+    ) {
         return ResponseEntity.ok(orderService.getOrder(orderId, userId));
     }
 
@@ -80,7 +79,7 @@ public class OrderController {
     public ResponseEntity<Page<OrderCreateResponse>> getAll(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String orderStatus,
-            @RequestParam(required = false) Long restaurantId,
+            @RequestParam(required = false) String restaurantId,
             @RequestParam(required = false) LocalDateTime orderDateStart,
             @RequestParam(required = false) LocalDateTime orderDateEnd,
             @RequestParam(required = false) String paymentMethod,
@@ -88,7 +87,7 @@ public class OrderController {
             @RequestParam(required = false) Long deliverBy,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
+    ) {
         PaymentStatus paymentStatus1 = null;
         PaymentMethod paymentMethod1 = null;
         OrderStatus orderStatus1 = null;
@@ -102,8 +101,8 @@ public class OrderController {
             orderStatus1 = OrderStatus.valueOf(orderStatus.toUpperCase());
         }
         OrderFilterRequest orderFilterRequest = mapToOrderFilterRequest(
-                userId,orderStatus1,restaurantId,orderDateStart,orderDateEnd,paymentMethod1,
-                paymentStatus1,deliverBy,page,size
+                userId, orderStatus1, restaurantId, orderDateStart, orderDateEnd, paymentMethod1,
+                paymentStatus1, deliverBy, page, size
         );
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
@@ -112,7 +111,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
     public ResponseEntity<Page<OrderCreateResponse>> getAllOrdersOfRestaurant(
             @RequestParam(required = false) Long userId,
-            @PathVariable("id") Long restaurantId,
+            @PathVariable("id") String restaurantId,
             @RequestParam(required = false) String orderStatus,
             @RequestParam(required = false) LocalDateTime orderDateStart,
             @RequestParam(required = false) LocalDateTime orderDateEnd,
@@ -121,7 +120,7 @@ public class OrderController {
             @RequestParam(required = false) Long deliverBy,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
+    ) {
         PaymentStatus paymentStatus1 = null;
         PaymentMethod paymentMethod1 = null;
         OrderStatus orderStatus1 = null;
@@ -135,8 +134,8 @@ public class OrderController {
             orderStatus1 = OrderStatus.valueOf(orderStatus.toUpperCase());
         }
         OrderFilterRequest orderFilterRequest = mapToOrderFilterRequest(
-                userId,orderStatus1,restaurantId,orderDateStart,orderDateEnd,paymentMethod1,
-                paymentStatus1,deliverBy,page,size
+                userId, orderStatus1, restaurantId, orderDateStart, orderDateEnd, paymentMethod1,
+                paymentStatus1, deliverBy, page, size
         );
         return ResponseEntity.ok(orderService.getAllOrder(orderFilterRequest));
     }
@@ -147,8 +146,8 @@ public class OrderController {
             @RequestParam String status,
             @RequestParam Long userId,
             @RequestBody(required = false) List<Long> availableDeliveryManIds
-    ){
-        if(status == null){
+    ) {
+        if (status == null) {
             throw new InvalidInputException("Status can't be null");
         }
         OrderStatus status1 = OrderStatus.valueOf(status.toUpperCase());
@@ -161,17 +160,17 @@ public class OrderController {
             @PathVariable("id") Long orderId,
             @RequestParam Long userId,
             @RequestBody(required = false) List<Long> availableDeliveryManIds
-    ){
+    ) {
         return ResponseEntity.ok(orderService.upgradeOrderStatus(orderId, userId, availableDeliveryManIds));
     }
 
     @GetMapping("/income/{id}")
     @PreAuthorize("hasRole('ROLE_RESTAURANT_OWNER')")
     public ResponseEntity<Double> totalIncomeOfRestaurant(
-            @PathVariable("id") Long restaurantId,
+            @PathVariable("id") String restaurantId,
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate
-    ){
+    ) {
         return ResponseEntity.ok(orderService.getRestaurantTotalIncome(
                 restaurantId, startDate, endDate));
     }
@@ -185,24 +184,24 @@ public class OrderController {
             @RequestParam(required = false) String deliveryUserPhoneNumber,
             @RequestParam(required = false) String specialNote,
             @RequestAttribute("userId") Long userId
-    ){
+    ) {
         return ResponseEntity.ok(orderService.updateOrder(
                 orderId, phoneNumber, email, deliveryUserPhoneNumber, deliveryUserName,
                 specialNote, userId
         ));
     }
 
-    @GetMapping("delivery-person/{id}")
+    @GetMapping("/delivery-person/{id}")
     public ResponseEntity<List<OrderCreateResponse>> getDeliveryPersonsOrders(
             @PathVariable("id") Long deliveryPersonId
-    ){
+    ) {
         return ResponseEntity.ok(orderService.getDeliveryPersonsOrders(deliveryPersonId));
     }
 
     private OrderFilterRequest mapToOrderFilterRequest(
             Long userId,
             OrderStatus orderStatus,
-            Long restaurantId,
+            String restaurantId,
             LocalDateTime orderDateStart,
             LocalDateTime orderDateEnd,
             PaymentMethod paymentMethod,
@@ -210,7 +209,7 @@ public class OrderController {
             Long deliverBy,
             Integer page,
             Integer size
-    ){
+    ) {
         return OrderFilterRequest.builder()
                 .userId(userId)
                 .orderStatus(orderStatus)

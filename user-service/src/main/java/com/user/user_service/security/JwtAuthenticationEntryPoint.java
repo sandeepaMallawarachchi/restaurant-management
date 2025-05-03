@@ -18,5 +18,4 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         // Respond with 401 Unauthorized error
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     }
-
 }

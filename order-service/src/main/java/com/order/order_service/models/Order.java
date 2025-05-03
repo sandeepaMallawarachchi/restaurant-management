@@ -27,7 +27,7 @@ public class Order {
     private Long id;
 
     @NotNull(message = "Restaurant ID is required")
-    private  Long restaurantId;
+    private String restaurantId;
 
     @NotNull(message = "User ID is required")
     private Long userId;
@@ -60,7 +60,7 @@ public class Order {
     private Double finalPrice;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus =  OrderStatus.PENDING;
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
@@ -100,7 +100,7 @@ public class Order {
         lastModifiedDate = LocalDateTime.now();
     }
 
-    public void setOrderTotal(){
+    public void setOrderTotal() {
         double total = 0;
         for (OrderItem item : items) {
             total += item.getTotalPrice();
@@ -108,6 +108,7 @@ public class Order {
         this.orderTotal = total;
         System.out.println("Order total: " + this.orderTotal);
     }
+
     public void setFinalPrice() {
         this.finalPrice = this.orderTotal - this.discount + this.deliveryFee;
     }

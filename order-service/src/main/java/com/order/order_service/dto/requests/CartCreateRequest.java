@@ -11,6 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class CartCreateRequest {
     private Long userId;
-    private Long restaurantId;
+    private String restaurantId;
     private CartItemCreateRequest cartItem;
 }

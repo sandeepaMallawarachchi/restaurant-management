@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 public class OrderCreateResponse {
     private Long id;
-    private Long restaurantId;
+    private String restaurantId;
     private Long userId;
     private String paymentMethod;
     private Double orderTotal;

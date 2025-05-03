@@ -1,8 +1,13 @@
 package com.user.user_service.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -73,7 +78,6 @@ public class User {
     @Column(name = "restaurant_id")
     private Set<Long> restaurantIds = new HashSet<>();
 
-
     private String city;
 
     private int postalCode;
@@ -97,7 +101,6 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
     private DeliveryVehicle deliveryVehicle;
-
 
     @OneToOne
     @JoinColumn(name = "bank_detail_id", referencedColumnName = "id")

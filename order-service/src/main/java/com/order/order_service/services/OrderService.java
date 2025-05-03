@@ -6,7 +6,6 @@ import com.order.order_service.dto.requests.OrderItemCreateRequest;
 import com.order.order_service.dto.responses.OrderCreateResponse;
 import com.order.order_service.dto.responses.OrderItemCreateResponse;
 import com.order.order_service.dto.responses.OrderLocationResponse;
-import com.order.order_service.exception.ResourceNotFoundException;
 import com.order.order_service.models.*;
 import com.order.order_service.repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -113,7 +112,7 @@ public class OrderService {
         return mapToOrderCreateResponse(order);
     }
 
-    public Page<OrderCreateResponse> getAllOrder(OrderFilterRequest request){
+    public Page<OrderCreateResponse> getAllOrder(OrderFilterRequest request) {
         Pageable pageable = Pageable.ofSize(request.getSize()).withPage(request.getPage());
         Page<Order> orders = orderRepository.filterAll(
                 request.getUserId(),
@@ -141,7 +140,7 @@ public class OrderService {
         }
         order.setOrderStatus(orderStatus);
 
-        if(orderStatus == OrderStatus.CONFIRMED){
+        if (orderStatus == OrderStatus.CONFIRMED) {
             order.setDeliverBy(assignDeliveryBy(deliveryByIds, orderId));
         }
         if (orderStatus == OrderStatus.CANCELLED) {
@@ -157,16 +156,16 @@ public class OrderService {
         logger.info("Canceling order with ID: {}", order.getId());
         order.setOrderStatus(OrderStatus.CANCELLED);
 
-        if(order.getPaymentMethod() == PaymentMethod.CREDIT_CARD_ONLINE){
-            if(order.getPaymentStatus() == PaymentStatus.COMPLETED){
+        if (order.getPaymentMethod() == PaymentMethod.CREDIT_CARD_ONLINE) {
+            if (order.getPaymentStatus() == PaymentStatus.COMPLETED) {
                 order.setPaymentStatus(PaymentStatus.REFUND_REQUESTED);
             }
-            if(order.getPaymentStatus() == PaymentStatus.PENDING){
+            if (order.getPaymentStatus() == PaymentStatus.PENDING) {
                 order.setPaymentStatus(PaymentStatus.CANCELLED);
             }
         }
 
-        if((order.getPaymentMethod() == PaymentMethod.CASH_ON_DELIVERY) || (order.getPaymentMethod() == PaymentMethod.CREDIT_CARD_ON_DELIVERY)){
+        if ((order.getPaymentMethod() == PaymentMethod.CASH_ON_DELIVERY) || (order.getPaymentMethod() == PaymentMethod.CREDIT_CARD_ON_DELIVERY)) {
             order.setPaymentStatus(PaymentStatus.CANCELLED);
         }
         logger.info("Order cancelled successfully for order with ID: {}", order.getId());
@@ -224,26 +223,26 @@ public class OrderService {
     }
 
     public Double getRestaurantTotalIncome(
-            Long restaurantId,
+            String restaurantId,
             LocalDateTime startDate,
             LocalDateTime endDate
-    ){
-        if(startDate == null){
+    ) {
+        if (startDate == null) {
             startDate = LocalDate.now().atStartOfDay();
-            if(endDate == null){
+            if (endDate == null) {
                 endDate = LocalDate.now().atTime(23, 59, 59);
             }
         }
-        if(endDate == null){
+        if (endDate == null) {
             endDate = startDate.toLocalDate().atTime(23, 59, 59);
         }
-        if(startDate.isAfter(endDate)){
+        if (startDate.isAfter(endDate)) {
             throw new RuntimeException("Start date must be before end date");
         }
 
         List<Order> orders = orderRepository.getByRestaurantIdAndDateBetween(restaurantId, startDate, endDate);
         Double totalIncome = 0.0;
-        for(Order order : orders){
+        for (Order order : orders) {
             totalIncome += order.getFinalPrice();
         }
         return totalIncome;
@@ -257,7 +256,7 @@ public class OrderService {
         }
     }
 
-    private void validateRestaurantId(Long restaurantId) {
+    private void validateRestaurantId(String restaurantId) {
         logger.debug("Validating restaurant ID: {}", restaurantId);
         if (restaurantId == null) {
             logger.warn("Restaurant ID validation failed: null value");
@@ -265,7 +264,7 @@ public class OrderService {
         }
     }
 
-    private void validateProductId(Long productId) {
+    private void validateProductId(String productId) {
         logger.debug("Validating product ID: {}", productId);
         if (productId == null) {
             logger.warn("Product ID validation failed: null value");
@@ -358,7 +357,7 @@ public class OrderService {
             throw new RuntimeException("User ID does not match with the order's user ID");
         }
 
-        if((order.getOrderStatus() == OrderStatus.CANCELLED) || (order.getOrderStatus() == OrderStatus.DELIVERED)){
+        if ((order.getOrderStatus() == OrderStatus.CANCELLED) || (order.getOrderStatus() == OrderStatus.DELIVERED)) {
             throw new RuntimeException("Order cannot be updated after it has been cancelled or delivered");
         }
         if (phoneNumber != null) {

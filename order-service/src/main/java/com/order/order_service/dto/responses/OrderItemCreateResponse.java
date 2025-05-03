@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 public class OrderItemCreateResponse {
     private Long id;
-    private Long productId;
+    private String productId;
     private String productName;
     private Double productPrice;
     private Integer quantity;

@@ -18,8 +18,6 @@ public class Role {
     @Column(nullable = false, unique = true)
     private String name;
 }
-
-
 //ROLE_ADMIN
 //ROLE_RESTAURANT_OWNER
 //ROLE_USER

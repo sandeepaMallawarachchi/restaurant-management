@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -91,66 +90,6 @@ public class AuthController {
         return ResponseEntity.ok(signupService.signupUser(request));
     }
 
-//    @PostMapping("/signup")
-//    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-//        logger.info("Signup request received for username: {}", signUpRequest.getUsername());
-//
-//        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-//            logger.warn("Username already taken: {}", signUpRequest.getUsername());
-//            return ResponseEntity.badRequest().body("Username is already taken!");
-//        }
-//
-//        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-//            logger.warn("Email already in use: {}", signUpRequest.getEmail());
-//            return ResponseEntity.badRequest().body("Email is already in use!");
-//        }
-//
-//        User user = new User();
-//        user.setUsername(signUpRequest.getUsername());
-//        user.setEmail(signUpRequest.getEmail());
-//        user.setPassword(encoder.encode(signUpRequest.getPassword()));
-//        user.setFirstName(signUpRequest.getFirstName());
-//        user.setLastName(signUpRequest.getLastName());
-//        user.setAddress(signUpRequest.getAddress());
-//        user.setPhoneNumber(signUpRequest.getPhone());
-//
-//        Set<String> strRoles = signUpRequest.getRoles();
-//        Set<Role> roles = new HashSet<>();
-//
-//        logger.debug("Assigning roles: {}", strRoles);
-//
-//        if (strRoles == null || strRoles.isEmpty()) {
-//            Role userRole = roleRepository.findByName("ROLE_USER")
-//                    .orElseThrow(() -> new RuntimeException("Role is not found."));
-//            roles.add(userRole);
-//        } else {
-//            strRoles.forEach(role -> {
-//                switch (role.toLowerCase()) {
-//                    case "admin":
-//                        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-//                                .orElseThrow(() -> new RuntimeException("Role is not found."));
-//                        roles.add(adminRole);
-//                        break;
-//                    case "restaurantowner":
-//                        Role ownerRole = roleRepository.findByName("ROLE_RESTAURANT_OWNER")
-//                                .orElseThrow(() -> new RuntimeException("Role is not found."));
-//                        roles.add(ownerRole);
-//                        break;
-//                    default:
-//                        Role defaultRole = roleRepository.findByName("ROLE_USER")
-//                                .orElseThrow(() -> new RuntimeException("Role is not found."));
-//                        roles.add(defaultRole);
-//                }
-//            });
-//        }
-//
-//        user.setRoles(roles);
-//        userRepository.save(user);
-//
-//        logger.info("User registered successfully: {}", user.getUsername());
-//        return ResponseEntity.ok("User registered successfully!");
-//    }
-
     @GetMapping("/validate-token")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
         logger.info("Token validation request received");
@@ -188,5 +127,10 @@ public class AuthController {
             return ResponseEntity.status(500)
                     .body(new JwtResponse("Server error", "Bearer", null, null, null, null));
         }
+    }
+
+    @GetMapping("/healthcheck")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is up and public endpoints are accessible");
     }
 }

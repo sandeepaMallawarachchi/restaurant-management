@@ -31,7 +31,7 @@ public class Cart {
     private List<CartItem> cartItems = new ArrayList<>();
 
     @NotNull(message = "Restaurant ID is required")
-    private Long restaurantId;
+    private String restaurantId;
 
     @Min(value = 0, message = "Total must be greater than or equal to 0")
     private Double total;

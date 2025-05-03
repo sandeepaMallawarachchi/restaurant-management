@@ -2,6 +2,7 @@ package com.user.user_service.controllers;
 
 import com.user.user_service.dto.response.DeliveryPersonSignupResponse;
 import com.user.user_service.dto.response.RestaurantOwnerResponse;
+import com.user.user_service.dto.response.VehicleResponse;
 import com.user.user_service.models.User;
 import com.user.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/verify-delivery-person/{id}")
+    @PutMapping("/verify-delivery-person/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<DeliveryPersonSignupResponse> verifyDeliveryPerson(
             @PathVariable Long id
@@ -66,7 +67,7 @@ public class UserController {
         return ResponseEntity.ok(userService.verifyDeliveryPerson(id));
     }
 
-    @GetMapping("/unverify-delivery-person/{id}")
+    @PutMapping("/unverify-delivery-person/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> unverifyDeliveryPerson(
             @PathVariable Long id
@@ -78,5 +79,22 @@ public class UserController {
     @GetMapping("/get-available-delivery-persons")
     public ResponseEntity<Iterable<DeliveryPersonSignupResponse>> getAvailableDeliveryPersons() {
         return ResponseEntity.ok(userService.getAvailableDeliveryPersons());
+    }
+
+    @GetMapping("/vehicle/{id}")
+    public ResponseEntity<VehicleResponse> getDeliveryVehicle(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getDeliveryVehicle(id));
+    }
+
+    @PutMapping("/update-vehicle")
+    public ResponseEntity<VehicleResponse> updateDeliveryVehicle(
+            @RequestAttribute(value = "userId") Long userId,
+            @RequestParam(required = false) String vehicleNumber,
+            @RequestParam(required = false) String vehicleImage,
+            @RequestParam(required = false) String vehicleDocuments,
+            @RequestParam(required = false) String drivingLicense
+    ) {
+        return ResponseEntity.ok(userService.updateVehicle(userId, vehicleNumber, vehicleImage,
+                vehicleDocuments, drivingLicense));
     }
 }

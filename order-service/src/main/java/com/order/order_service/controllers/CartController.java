@@ -17,8 +17,7 @@ public class CartController {
     @PostMapping
     public ResponseEntity<CartResponse> addItemToCart(
             @RequestAttribute("userId") Long userId,
-            @RequestBody CartItemCreateRequest request)
-    {
+            @RequestBody CartItemCreateRequest request) {
         return ResponseEntity.ok(cartService.addToCart(request, userId));
     }
 
@@ -26,7 +25,7 @@ public class CartController {
     public ResponseEntity<CartResponse> removeItem(
             @RequestAttribute("userId") Long userId,
             @RequestBody CartItemCreateRequest request
-    ){
+    ) {
         return ResponseEntity.ok(cartService.removeCartItem(request, userId));
     }
 
@@ -34,13 +33,13 @@ public class CartController {
     public ResponseEntity<CartResponse> decreaseItemQuantity(
             @RequestAttribute("userId") Long userId,
             @RequestBody CartItemCreateRequest request
-    ){
+    ) {
         return ResponseEntity.ok(cartService.decreaseCartItemQuantity(request, userId));
     }
 
     @PutMapping("/empty/{id}")
     public ResponseEntity<Void> emptyCart(@RequestAttribute("userId") Long userId,
-                                            @PathVariable("id") Long cartId) {
+                                          @PathVariable("id") Long cartId) {
         cartService.emptyCart(cartId, userId);
         return ResponseEntity.ok().build();
     }

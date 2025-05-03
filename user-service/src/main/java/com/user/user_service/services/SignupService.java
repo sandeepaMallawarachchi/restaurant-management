@@ -34,7 +34,6 @@ public class SignupService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
 
-
     public AdminSignupResponse signupAdmin(AdminSignupRequest adminSignupRequest) {
         logger.info("Processing admin signup request for username: {}", adminSignupRequest.getUsername());
         checkAlreadyExists(adminSignupRequest.getUsername(), adminSignupRequest.getEmail());
@@ -235,7 +234,7 @@ public class SignupService {
     }
 
     public DeliveryPersonSignupResponse mapToDeliveryPersonSignupResponse(User user,
-                                                                     DeliveryVehicle vehicle) {
+                                                                          DeliveryVehicle vehicle) {
         logger.debug("Mapping delivery person to response: {}", user.getId());
         return DeliveryPersonSignupResponse.builder()
                 .id(user.getId())

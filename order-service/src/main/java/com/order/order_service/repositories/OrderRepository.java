@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface OrderRepository  extends JpaRepository<Order,Long> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE " +
             "(:userId IS NULL OR o.userId = :userId) AND " +
             "(:orderStatus IS NULL OR o.orderStatus = :orderStatus) AND " +
@@ -28,7 +28,7 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
     Page<Order> filterAll(
             @Param("userId") Long userId,
             @Param("orderStatus") OrderStatus orderStatus,
-            @Param("restaurantId") Long restaurantId,
+            @Param("restaurantId") String restaurantId,
             @Param("orderDateStart") LocalDateTime orderDateStart,
             @Param("orderDateEnd") LocalDateTime orderDateEnd,
             @Param("paymentMethod") PaymentMethod paymentMethod,
@@ -41,7 +41,7 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
             "WHERE o.restaurantId = :restaurantId AND " +
             "o.createdDate BETWEEN :startDate AND :endDate")
     List<Order> getByRestaurantIdAndDateBetween(
-            Long restaurantId,
+            String restaurantId,
             LocalDateTime startDate,
             LocalDateTime endDate
     );
