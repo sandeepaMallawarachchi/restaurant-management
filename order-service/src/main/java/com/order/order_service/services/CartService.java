@@ -107,25 +107,20 @@ public class CartService {
         return mapToCartResponse(cart);
     }
 
-    public CartResponse removeCartItem(CartItemCreateRequest request, Long userId) {
+    public CartResponse removeCartItem(String productId, Long userId) {
         validateUserId(userId);
-        validateProductId(request.getProductId());
-        validateRestaurantId(request.getRestaurantId());
+        validateProductId(productId);
 
         Cart cart = cartRepository.getByUserId(userId);
         if (cart == null) {
             throw new ResourceNotFoundException("Cart not found");
-        }
-        if (!Objects.equals(cart.getRestaurantId(), request.getRestaurantId())) {
-            throw new InvalidInputException(
-                    "Restaurant ID does not match with the cart's restaurant ID");
         }
         if (cart.getCartItems().isEmpty()) {
             throw new InvalidInputException("Cart is already empty");
         }
 
         CartItem item = cart.getCartItems().stream()
-                .filter(cartItem -> Objects.equals(cartItem.getProductId(), request.getProductId()))
+                .filter(cartItem -> Objects.equals(cartItem.getProductId(),productId))
                 .findFirst()
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Cart item not found")

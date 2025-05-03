@@ -21,12 +21,12 @@ public class CartController {
         return ResponseEntity.ok(cartService.addToCart(request, userId));
     }
 
-    @PutMapping("/remove-item")
+    @PutMapping("/remove-item/{id}")
     public ResponseEntity<CartResponse> removeItem(
             @RequestAttribute("userId") Long userId,
-            @RequestBody CartItemCreateRequest request
+            @PathVariable("id") String productId
     ) {
-        return ResponseEntity.ok(cartService.removeCartItem(request, userId));
+        return ResponseEntity.ok(cartService.removeCartItem(productId, userId));
     }
 
     @PutMapping("/decrease-item-quantity")
