@@ -28,7 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/restaurants").permitAll()
                         .requestMatchers("/restaurants/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_RESTAURANT_OWNER", "ROLE_DELIVERY_PERSON")
                         .requestMatchers("/menu").permitAll()
-                        .requestMatchers("/menu/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_RESTAURANT_OWNER")
+                        .requestMatchers("/menu/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                         .anyRequest().authenticated()
