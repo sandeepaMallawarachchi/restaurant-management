@@ -17,8 +17,7 @@ public class MenuItem {
     @NotNull(message = "RestaurantId is required")
     private String restaurantId;
 
-    @Indexed(unique = true)
-    @NotBlank(message = "Restaurant name is required")
+    @NotBlank(message = "menu name is required")
     private String name;
 
     @NotNull(message = "Price is required")

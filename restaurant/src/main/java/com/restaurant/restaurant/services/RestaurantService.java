@@ -20,7 +20,7 @@ public class RestaurantService {
         try {
             return restaurantRepository.save(restaurant);
         } catch (DuplicateKeyException e) {
-            throw new RuntimeException("Restaurant name must be unique");
+            throw new RuntimeException("Error adding restaurant");
         }
     }
 
