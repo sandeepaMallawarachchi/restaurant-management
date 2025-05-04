@@ -2,6 +2,7 @@ package com.example.delivery.services;
 
 import com.example.delivery.models.DeliveryPerson;
 import com.example.delivery.models.RestaurantDTO;
+import com.example.delivery.repository.DeliveryPersonRepository;
 import com.example.delivery.repository.DeliveryRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,15 +16,22 @@ import java.util.stream.Collectors;
 @Service
 public class DeliveryService {
 
-    private final DeliveryRepository repository;
+    private final DeliveryRepository deliveryRepository;
+    private final DeliveryPersonRepository deliveryPersonRepository;
     private final HttpServletRequest request;
     private final UserServiceClient userServiceClient;
 
     @Value("${restaurant.service.url}")
     private String restaurantServiceUrl;
 
-    public DeliveryService(DeliveryRepository repository, HttpServletRequest request, UserServiceClient userServiceClient) {
-        this.repository = repository;
+    public DeliveryService(
+            DeliveryRepository deliveryRepository,
+            DeliveryPersonRepository deliveryPersonRepository,
+            HttpServletRequest request,
+            UserServiceClient userServiceClient
+    ) {
+        this.deliveryRepository = deliveryRepository;
+        this.deliveryPersonRepository = deliveryPersonRepository;
         this.request = request;
         this.userServiceClient = userServiceClient;
     }
@@ -53,7 +61,7 @@ public class DeliveryService {
     }
 
     public void registerToRestaurant(String deliveryPersonId, String restaurantId) {
-        DeliveryPerson person = repository.findById(deliveryPersonId).orElse(null);
+        DeliveryPerson person = deliveryPersonRepository.findById(deliveryPersonId).orElse(null);
 
         if (person == null) {
             person = new DeliveryPerson();
@@ -62,7 +70,7 @@ public class DeliveryService {
         }
 
         person.setRegisteredRestaurantId(restaurantId);
-        repository.save(person);
+        deliveryPersonRepository.save(person);
     }
 
     public List<RestaurantDTO> getRestaurantsByUser() {
@@ -92,7 +100,7 @@ public class DeliveryService {
     }
 
     public void updateDeliveryStatus(String deliveryPersonId, String orderId, String status) {
-        DeliveryPerson person = repository.findById(deliveryPersonId)
+        DeliveryPerson person = deliveryPersonRepository.findById(deliveryPersonId)
                 .orElseThrow(() -> new RuntimeException("Delivery person not found"));
 
         person.getAssignedOrderIds().remove(orderId);
@@ -102,27 +110,27 @@ public class DeliveryService {
         }
 
         person.setDeliveryStatus(status);
-        repository.save(person);
+        deliveryPersonRepository.save(person);
     }
 
     public List<String> getAssignedOrdersByDeliveryPerson(String deliveryPersonId) {
-        return repository.findById(deliveryPersonId)
+        return deliveryPersonRepository.findById(deliveryPersonId)
                 .map(DeliveryPerson::getAssignedOrderIds)
                 .orElse(List.of());
     }
 
     public List<String> getAssignedOrdersByRestaurant(String restaurantId) {
-        return repository.findByRegisteredRestaurantId(restaurantId).stream()
+        return deliveryPersonRepository.findByRegisteredRestaurantId(restaurantId).stream()
                 .flatMap(person -> person.getAssignedOrderIds().stream())
                 .collect(Collectors.toList());
     }
 
     public List<DeliveryPerson> getAllDeliveryPersons() {
-        return repository.findAll();
+        return deliveryPersonRepository.findAll();
     }
 
     public String assignDeliveryPersonToOrder(String restaurantId, String orderId) {
-        List<DeliveryPerson> candidates = repository.findByRegisteredRestaurantIdAndAvailableTrue(restaurantId);
+        List<DeliveryPerson> candidates = deliveryPersonRepository.findByRegisteredRestaurantIdAndAvailableTrue(restaurantId);
 
         if (candidates.isEmpty()) {
             return null;
@@ -133,7 +141,12 @@ public class DeliveryService {
         person.setAvailable(false);
         person.setDeliveryStatus("DELIVERING");
 
-        repository.save(person);
+        deliveryPersonRepository.save(person);
         return person.getId();
+    }
+
+    public String getRegisteredRestaurantId(String deliveryPersonId) {
+        DeliveryPerson dp = deliveryPersonRepository.findById(deliveryPersonId).orElse(null);
+        return dp != null ? dp.getRegisteredRestaurantId() : null;
     }
 }

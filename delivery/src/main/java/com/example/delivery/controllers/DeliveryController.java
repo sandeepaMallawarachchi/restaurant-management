@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,24 @@ public class DeliveryController {
     public ResponseEntity<List<RestaurantDTO>> getRestaurantsByUser() {
         List<RestaurantDTO> restaurants = deliveryService.getRestaurantsByUser();
         return ResponseEntity.ok(restaurants);
+    }
+
+    @GetMapping("/registered-restaurant")
+    public ResponseEntity<Map<String, String>> getRegisteredRestaurantId() {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        Claims claims = jwtUtil.getAllClaims(token);
+        String deliveryPersonId = String.valueOf(claims.get("userId"));
+
+        String registeredId = deliveryService.getRegisteredRestaurantId(deliveryPersonId);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("restaurantId", registeredId != null ? registeredId : "");
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/update-status")

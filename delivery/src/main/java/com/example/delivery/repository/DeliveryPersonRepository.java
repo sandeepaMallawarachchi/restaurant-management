@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface DeliveryPersonRepository extends MongoRepository<DeliveryPerson, String> {
     List<DeliveryPerson> findByCity(String city);
+    List<DeliveryPerson> findByRegisteredRestaurantId(String restaurantId);
+    List<DeliveryPerson> findByRegisteredRestaurantIdAndAvailableTrue(String restaurantId);
 }
