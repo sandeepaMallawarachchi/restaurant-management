@@ -111,7 +111,7 @@ public class DeliveryController {
     }
 
     @GetMapping("/all-delivery-persons")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_RESTAURANT_OWNER')")
     public ResponseEntity<List<DeliveryPerson>> getAllDeliveryPersons() {
         List<DeliveryPerson> list = deliveryService.getAllDeliveryPersons();
         return ResponseEntity.ok(list);
