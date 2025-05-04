@@ -18,7 +18,7 @@ public class DeliveryPerson {
     private List<String> assignedOrderIds = new ArrayList<>();
     private String deliveryStatus;
 
-    // Getters & Setters
+    // Getters & Setterss
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
