@@ -17,7 +17,7 @@ public class Restaurant {
     @NotBlank(message = "Restaurant name is required")
     private String name;
 
-    @NotBlank(message = "UserId is required")
+    @NotNull(message = "UserId is required")
     private Long userId;
 
     @NotBlank(message = "Address is required")
@@ -32,7 +32,7 @@ public class Restaurant {
     private boolean isAvailable = true;
     private boolean verifiedByAdmin = false;
 
-    @NotBlank(message = "Delivery time is required")
+    @NotNull(message = "Delivery time is required")
     private Long deliveryTime;
 
     private String restaurantImage;
